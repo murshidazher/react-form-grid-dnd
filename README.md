@@ -12,7 +12,9 @@
 - [ ] Drag and drop elements to the box. Look into [React dnd](https://react-dnd.github.io/react-dnd/examples/other/native-files)
 - [ ] On drop add element to the form structure
 - [ ] Add element to the schema structure
-- [ ] 
 - [ ] Create form element components
+- [ ] Add Styling
 
 ## License
+
+[MIT](https://github.com/murshidazher/react-form-grid-dnd/blob/master/LICENSE) © Murshid Azher.
