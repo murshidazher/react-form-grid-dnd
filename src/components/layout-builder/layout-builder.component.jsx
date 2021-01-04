@@ -82,7 +82,7 @@ export default class LayoutBuilder extends React.Component {
                 id="example"
                 onSelect={() => this.onFieldSelect('email')}
               />
-              <TextInput />
+              {/* <TextInput /> */}
               <span className="text">
                 {l.i} - {i}
               </span>
@@ -138,30 +138,9 @@ export default class LayoutBuilder extends React.Component {
 
   onDrop = (layout, item, event) => {
     // event.preventDefault()
-    console.log('on drop', this.state.layouts[this.state.currentBreakpoint])
-    console.log('layout', layout)
-    console.log(event)
-
     const orderedLayout = _.orderBy(layout, ['y'], ['asc'])
-
-    console.log('orderedLayout', orderedLayout)
-
-    // this.onLayoutChange(orderedLayout, this.state.layouts)
-
     this.setState(
       produce((draft) => {
-        // draft.layouts[this.state.currentBreakpoint].push({
-        //   x: layout[layout.length - 1].x,
-        //   y: layout[layout.length - 1].y,
-        //   w: layout[layout.length - 1].w,
-        //   h: layout[layout.length - 1].h,
-        //   i: `${draft.layouts[this.state.currentBreakpoint].length}`,
-        //   static: layout[layout.length - 1].state,
-        //   resizeHandles: layout[layout.length - 1].resizeHandles,
-        //   minH: layout[layout.length - 1].minH,
-        // })
-
-        // draft.layouts.lg = layout
         draft.layouts[this.state.currentBreakpoint] = orderedLayout
         draft.layoutLength = orderedLayout.length
         console.log('draft', draft)
@@ -213,6 +192,7 @@ export default class LayoutBuilder extends React.Component {
             isBounded: true,
             isDroppable: true,
             resizeHandles: ['s', 'n'],
+            field: 'text',
           }}
           resizeHandles={['s', 'n']}
           // resizeHandle={(resizeHandleAxis) => (
