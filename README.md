@@ -23,6 +23,10 @@
 - [ ] On drop add element to the form structure
 - [ ] Add element to the schema structure
 - [ ] Create form element components
+- [ ] Change the state to redux saga
+- [ ] Refactor: change the class components to stateless components
+- [ ] Create custom resize handle
+- [ ] useMemo to memoize the grid for [better performance](https://github.com/STRML/react-grid-layout#performance)
 - [ ] Add Styling
 
 ## License

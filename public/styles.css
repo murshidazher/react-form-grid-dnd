@@ -2,13 +2,16 @@
   position: relative;
   transition: height 200ms ease;
 }
+
 .react-grid-item {
   transition: all 200ms ease;
   transition-property: left, top;
 }
+
 .react-grid-item.cssTransforms {
   transition-property: transform;
 }
+
 .react-grid-item.resizing {
   z-index: 1;
   will-change: width, height;
@@ -32,7 +35,7 @@
   user-select: none;
 }
 
-.react-grid-item > .react-resizable-handle {
+.react-grid-item>.react-resizable-handle {
   position: absolute;
   width: 20px;
   height: 20px;
@@ -44,5 +47,4 @@
   background-repeat: no-repeat;
   background-origin: content-box;
   box-sizing: border-box;
-  cursor: se-resize;
 }
