@@ -9,10 +9,13 @@
 - [react-form-grid-dnd](#react-form-grid-dnd)
   - [Table of Contents](#table-of-contents)
   - [TODO](#todo)
+  - [Tools](#tools)
   - [License](#license)
 
 ## TODO
 
+- [ ] Look for all demos in [STRML/react-grid-layout](https://github.com/STRML/react-grid-layout#demos)
+- [ ] Do a code review to understand the library
 - [ ] Create a basic form structure
 - [ ] Create a basic form schema structure. Refer to [this doc](https://github.com/json-schema-form/json-schema-form/wiki/Documentation)
 - [ ] Create an element form and schema structure
@@ -25,9 +28,19 @@
 - [ ] Create form element components
 - [ ] Change the state to redux saga
 - [ ] Refactor: change the class components to stateless components
+- [ ] Refactor: remove unused packages
+- [ ] Refactor: change the drag source box to use native drag elements and remove react dnd
 - [ ] Create custom resize handle
 - [ ] useMemo to memoize the grid for [better performance](https://github.com/STRML/react-grid-layout#performance)
 - [ ] Add Styling
+- [ ] [Drag from Outside](https://strml.github.io/react-grid-layout/examples/15-drag-from-outside.html)
+- [ ] [Add Dynamic Add and Remove](https://strml.github.io/react-grid-layout/examples/6-dynamic-add-remove.html)
+- [ ] [Remove and Rearrange - toolbox](https://strml.github.io/react-grid-layout/examples/14-toolbox.html)
+- [ ] [Localstorage](https://strml.github.io/react-grid-layout/examples/7-localstorage.html)
+
+## Tools
+
+- [Immer](https://immerjs.github.io/immer/docs/update-patterns)
 
 ## License
 

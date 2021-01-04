@@ -27,6 +27,13 @@ class TextInput extends React.Component {
   }
 }
 
+const removeStyle = {
+  position: 'absolute',
+  right: '2px',
+  top: 0,
+  cursor: 'pointer',
+}
+
 export default class LayoutBuilder extends React.Component {
   constructor(props) {
     super(props)
@@ -51,6 +58,16 @@ export default class LayoutBuilder extends React.Component {
 
   onInputChange() {}
 
+  onRemoveItem = (i) => {
+    console.log('removing', i)
+    this.setState(
+      produce((draft) => {
+        draft.layouts[this.state.currentBreakpoint].splice(i, 1)
+        draft.layoutLength -= draft.layoutLength
+      })
+    )
+  }
+
   generateDOM = () => {
     console.log(
       'generate DOM',
@@ -62,7 +79,7 @@ export default class LayoutBuilder extends React.Component {
       ['asc']
     ).map((l, i) => {
       return (
-        <div key={i} className={l.static ? 'static' : ''}>
+        <div key={i} className={l.static ? 'static' : ''} data-grid={l}>
           {l.static ? (
             <span
               className="text"
@@ -88,6 +105,14 @@ export default class LayoutBuilder extends React.Component {
               </span>
             </>
           )}
+
+          <span
+            className="remove"
+            style={removeStyle}
+            onClick={this.onRemoveItem.bind(this, i)}
+          >
+            x
+          </span>
         </div>
       )
     })
@@ -184,7 +209,7 @@ export default class LayoutBuilder extends React.Component {
           resizeHandles={['se', 'ne']}
           onDrop={(layout, item, e) => this.onDrop(layout, item, e)}
           droppingItem={{
-            i: `${this.state.layoutLength}`,
+            i: this.state.layoutLength.toString(),
             w: 6,
             h: 6,
             minH: 2,
