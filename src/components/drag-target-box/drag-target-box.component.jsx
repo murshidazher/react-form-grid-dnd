@@ -40,7 +40,7 @@ const DragTargetBox = ({ onDrop, lastDroppedColor }) => {
 
   return (
     <div ref={drop} style={{ ...style, backgroundColor, opacity }}>
-      <p>Drop here.</p>
+      <p>Drop here : {lastDroppedColor}.</p>
 
       {!canDrop && lastDroppedColor && <p>Last dropped: {lastDroppedColor}</p>}
     </div>

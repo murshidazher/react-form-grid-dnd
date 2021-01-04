@@ -1,10 +1,15 @@
-import React from 'react'
+import React, { useState, memo, useMemo, useCallback } from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 import ResizeHandle from '../resize-handle/resize-handle.component'
 import { Responsive, WidthProvider } from 'react-grid-layout'
 import produce from 'immer'
+import { StatefulTargetBox as DragTargetBox } from '../drag-target-box/drag-target-box.component'
 const ResponsiveReactGridLayout = WidthProvider(Responsive)
+import GridLayout from 'react-grid-layout'
+
+import { useDrop } from 'react-dnd'
+import { Colors } from '../Colors'
 
 class TextInput extends React.Component {
   state = {
@@ -34,6 +39,88 @@ const removeStyle = {
   cursor: 'pointer',
 }
 
+// export default One
+
+const withStatefulDrop = (BaseComponent) => (props) => {
+  const [lastDroppedColor, setLastDroppedColor] = useState(null)
+  const onDrop = useCallback((color) => setLastDroppedColor(color), [])
+
+  const [{ isOver, draggingColor, canDrop }, drop] = useDrop({
+    accept: [Colors.YELLOW, Colors.BLUE],
+    drop(item) {
+      onDrop(item.type)
+      return undefined
+    },
+    collect: (monitor) => ({
+      isOver: monitor.isOver(),
+      canDrop: monitor.canDrop(),
+      draggingColor: monitor.getItemType(),
+    }),
+  })
+
+  return (
+    <div ref={drop}>
+      <p>Drop here : {lastDroppedColor}.</p>
+
+      {!canDrop && lastDroppedColor && <p>Last dropped: {lastDroppedColor}</p>}
+      <BaseComponent {...props} />
+    </div>
+  )
+}
+
+const MyGrid = memo(({ layouts, currentBreakpoint }) => {
+  const children = useMemo(() => {
+    return _.orderBy(layouts[currentBreakpoint], ['y'], ['asc']).map((l, i) => {
+      return (
+        <div key={i} className={l.static ? 'static' : ''} data-grid={l}>
+          {l.static ? (
+            <span
+              className="text"
+              title="This item is static and cannot be removed or resized."
+            >
+              Static - {i}
+            </span>
+          ) : i !== 0 ? (
+            <span className="text">
+              {l.i} - {i}
+            </span>
+          ) : (
+            <>
+              <input
+                type="text"
+                name="example"
+                id="example"
+                // onSelect={() => this.onFieldSelect('email')}
+              />
+              {/* <TextInput /> */}
+              <span className="text">
+                {l.i} - {i}
+              </span>
+            </>
+          )}
+
+          <span
+            className="remove"
+            style={removeStyle}
+            // onClick={this.onRemoveItem.bind(this, i)}
+          >
+            x
+          </span>
+        </div>
+      )
+    })
+  }, [layouts])
+
+  return (
+    <>
+      <GridLayout cols={12}>{children}</GridLayout>
+    </>
+  )
+})
+
+const StatefulMyGrid = withStatefulDrop(MyGrid)
+
+/* afdasfs */
 export default class LayoutBuilder extends React.Component {
   constructor(props) {
     super(props)
@@ -189,12 +276,15 @@ export default class LayoutBuilder extends React.Component {
         <button onClick={this.onCompactTypeChange}>
           Change Compaction Type
         </button>
-        <ResponsiveReactGridLayout
+        <StatefulMyGrid
+          layouts={this.state.layouts}
+          currentBreakpoint={this.state.currentBreakpoint}
+        />
+        {/* <ResponsiveReactGridLayout
           {...this.props}
           layouts={this.state.layouts}
           onBreakpointChange={this.onBreakpointChange}
           onLayoutChange={this.onLayoutChange}
-          // WidthProvider option
           measureBeforeMount={false}
           // I like to have it animate on mount. If you don't, delete `useCSSTransforms` (it's default `true`)
           // and set `measureBeforeMount={true}`.
@@ -212,7 +302,7 @@ export default class LayoutBuilder extends React.Component {
             i: this.state.layoutLength.toString(),
             w: 6,
             h: 6,
-            minH: 2,
+            minH: 8,
             static: false,
             isBounded: true,
             isDroppable: true,
@@ -225,7 +315,7 @@ export default class LayoutBuilder extends React.Component {
           // )}
         >
           {this.generateDOM()}
-        </ResponsiveReactGridLayout>
+        </ResponsiveReactGridLayout> */}
       </div>
     )
   }
@@ -261,7 +351,7 @@ function generateLayout() {
       isDroppable: true,
       // minW: ?number = 0,
       // maxW: ?number = Infinity,
-      minH: 1,
+      minH: 4,
       // maxH: Infinity,
     }
   })

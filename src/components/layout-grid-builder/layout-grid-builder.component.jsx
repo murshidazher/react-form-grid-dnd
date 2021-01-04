@@ -2,6 +2,8 @@ import React from 'react'
 import LayoutBuilder from '../layout-builder/layout-builder.component'
 import FormBuilder from '../form-builder/form-builder.component'
 import SchemaViewer from '../schema-viewer/schema-viewer.component'
+import { DndProvider } from 'react-dnd'
+import { HTML5Backend } from 'react-dnd-html5-backend'
 
 export default class LayoutGridBuilder extends React.Component {
   constructor(props) {
@@ -30,29 +32,33 @@ export default class LayoutGridBuilder extends React.Component {
 
   render() {
     return (
-      <div className="text-black">
-        <div className="layoutJSON">
-          Displayed as <code>[x, y, w, h]</code>:
-          <div className="columns">{this.stringifyLayout()}</div>
-        </div>
-        <div className="">
-          <div className="wrapper flex">
-            <div className="bg-white text-black shadow-md border-gray-200 border-r">
-              <div className="px-1 text-sm font-semibold mb-2 mt-2">Fields</div>
-              <FormBuilder />
-            </div>
-            <div className="bg-indigo-50 shadow-md">
-              <LayoutBuilder
-                onLayoutChange={this.onLayoutChange}
-                onFieldSelect={this.onFieldSelect}
-              />
-            </div>
-            <div className="bg-white shadow-md">
-              <SchemaViewer fieldKey={this.state.fieldKey} />
+      <DndProvider backend={HTML5Backend}>
+        <div className="text-black">
+          <div className="layoutJSON">
+            Displayed as <code>[x, y, w, h]</code>:
+            <div className="columns">{this.stringifyLayout()}</div>
+          </div>
+          <div className="">
+            <div className="wrapper flex">
+              <div className="bg-white text-black shadow-md border-gray-200 border-r">
+                <div className="px-1 text-sm font-semibold mb-2 mt-2">
+                  Fields
+                </div>
+                <FormBuilder />
+              </div>
+              <div className="bg-indigo-50 shadow-md">
+                <LayoutBuilder
+                  onLayoutChange={this.onLayoutChange}
+                  onFieldSelect={this.onFieldSelect}
+                />
+              </div>
+              <div className="bg-white shadow-md">
+                <SchemaViewer fieldKey={this.state.fieldKey} />
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </DndProvider>
     )
   }
 }
