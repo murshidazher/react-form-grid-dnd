@@ -3,8 +3,8 @@ import './schema-viewer.styles.scss'
 import Icon from 'react-hero-icon'
 import _ from 'lodash'
 import clsx from 'clsx'
-import Input from '../common/input.component';
-import {insertSpaces} from '../../utils/capitalize';
+import Input from '../common/input.component'
+import { insertSpaces } from '../../utils/capitalize'
 
 // what form to generate
 // key should be unique because its mapped to the properties name
@@ -56,12 +56,24 @@ const SchemaViewer = ({ fieldKey }) => {
   const [schema, setSchema] = useState(initialSchema)
   const [schemaElements, setSchemaElements] = useState([])
 
+  useEffect(() => {
+    if (fieldKey.length > 0) {
+      generateSchemaForm()
+    }
+  }, [schema, fieldKey])
+
   const generateSchemaForm = () => {
     // get the schema based on the fieldKey value
     const result = _(schema.properties[fieldKey])
       .map((field, id) => {
         return (
-          <Input key={`${fieldKey}_${id}`} name={id} label={insertSpaces(id)} defaultValue={field} type={'text'} />
+          <Input
+            key={`${fieldKey}_${id}`}
+            name={id}
+            label={insertSpaces(id)}
+            defaultValue={field}
+            type={'text'}
+          />
         )
       })
       .value()
@@ -80,7 +92,7 @@ const SchemaViewer = ({ fieldKey }) => {
         // className
       )}
     >
-      <button
+      {/* <button
         className="text-pink-500 bg-transparent border border-solid active:bg-pink-600 font-semi-bold text-xs px-4 py-2  outline-none focus:outline-none flex flex-wrap items-center"
         type="button"
         onClick={() => {
@@ -92,7 +104,7 @@ const SchemaViewer = ({ fieldKey }) => {
           <Icon className="h-4 w-4" icon="plus" />
         </i>
         Textbox
-      </button>
+      </button> */}
       <div key={fieldKey}>{schemaElements}</div>
     </div>
   )

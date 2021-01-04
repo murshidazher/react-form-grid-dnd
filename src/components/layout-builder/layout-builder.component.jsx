@@ -39,6 +39,7 @@ export default class LayoutBuilder extends React.Component {
     this.onCompactTypeChange = this.onCompactTypeChange.bind(this)
     this.onLayoutChange = this.onLayoutChange.bind(this)
     this.onNewLayout = this.onNewLayout.bind(this)
+    // this.onFieldSelect = this.onFieldSelect.bind(this)
   }
 
   componentDidMount() {
@@ -47,8 +48,8 @@ export default class LayoutBuilder extends React.Component {
 
   onInputChange() {}
 
-  generateDOM() {
-    return _.map(this.state.layouts.lg, function (l, i) {
+  generateDOM = () => {
+    return _.map(this.state.layouts.lg, (l, i) => {
       return (
         <div key={i} className={l.static ? 'static' : ''}>
           {l.static ? (
@@ -62,7 +63,12 @@ export default class LayoutBuilder extends React.Component {
             <span className="text">{i}</span>
           ) : (
             <>
-              <input type="text" name="example" id="example" />
+              <input
+                type="text"
+                name="example"
+                id="example"
+                onSelect={() => this.onFieldSelect('email')}
+              />
               <TextInput />
             </>
           )}
@@ -75,6 +81,10 @@ export default class LayoutBuilder extends React.Component {
     this.setState({
       currentBreakpoint: breakpoint,
     })
+  }
+
+  onFieldSelect = (key) => {
+    this.props.onFieldSelect(key)
   }
 
   onCompactTypeChange() {
@@ -96,6 +106,21 @@ export default class LayoutBuilder extends React.Component {
     this.setState({
       layouts: { lg: generateLayout() },
     })
+  }
+
+  onDragOver = (event) => {
+    event.preventDefault()
+    console.log('drag Over')
+  }
+
+  onDragEnter = (event) => {
+    event.preventDefault()
+    console.log('drag enter')
+  }
+
+  onDrop = (event) => {
+    event.preventDefault()
+    console.log('on drop')
   }
 
   render() {
@@ -125,6 +150,9 @@ export default class LayoutBuilder extends React.Component {
           useCSSTransforms={this.state.mounted}
           compactType={this.state.compactType}
           preventCollision={!this.state.compactType}
+          // onDragEnter={this.onDragEnter}
+          // onDragOver={this.onDragOver}
+          // onDrop={this.onFileDrop}
         >
           {this.generateDOM()}
         </ResponsiveReactGridLayout>
@@ -139,14 +167,14 @@ LayoutBuilder.propTypes = {
 
 LayoutBuilder.defaultProps = {
   className: 'layout',
-  rowHeight: 24,
+  rowHeight: 8,
   onLayoutChange: function () {},
   cols: { lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 },
   initialLayout: generateLayout(),
 }
 
 function generateLayout() {
-  return _.map(_.range(0, 25), function (item, i) {
+  return _.map(_.range(0, 4), function (item, i) {
     var y = Math.ceil(Math.random() * 4) + 1
     return {
       // x: (_.random(0, 5) * 2) % 12,
@@ -155,7 +183,8 @@ function generateLayout() {
       w: 6,
       h: y,
       i: i.toString(),
-      static: Math.random() < 0.05,
+      // static: Math.random() < 0.05,
+      static: false,
     }
   })
 }

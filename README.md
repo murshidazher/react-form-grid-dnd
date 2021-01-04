@@ -17,6 +17,7 @@
 - [ ] Create a basic form schema structure. Refer to [this doc](https://github.com/json-schema-form/json-schema-form/wiki/Documentation)
 - [ ] Create an element form and schema structure
 - [ ] Show component properties to the elements
+- [ ] On Drag, create a new layout inside the layout builder
 - [ ] Drag and drop elements
 - [ ] Drag and drop elements to the box. Look into [React dnd](https://react-dnd.github.io/react-dnd/examples/other/native-files)
 - [ ] On drop add element to the form structure

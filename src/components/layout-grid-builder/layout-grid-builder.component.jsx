@@ -6,12 +6,16 @@ import SchemaViewer from '../schema-viewer/schema-viewer.component'
 export default class LayoutGridBuilder extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { layout: [] }
-    this.onLayoutChange = this.onLayoutChange.bind(this)
+    this.state = { layout: [], fieldKey: '' }
+    // this.onLayoutChange = this.onLayoutChange.bind(this)
   }
 
-  onLayoutChange(layout) {
+  onLayoutChange = (layout) => {
     this.setState({ layout: layout })
+  }
+
+  onFieldSelect = (key) => {
+    this.setState({ fieldKey: key })
   }
 
   stringifyLayout() {
@@ -34,14 +38,17 @@ export default class LayoutGridBuilder extends React.Component {
         <div className="">
           <div className="wrapper ">
             <div className="bg-white text-black shadow-md border-gray-200 border-r">
-              <div className="">Fields</div>
+              <div className="px-1 text-sm font-semibold mb-2 mt-2">Fields</div>
               <FormBuilder />
             </div>
             <div className="bg-indigo-50 shadow-md">
-              <LayoutBuilder onLayoutChange={this.onLayoutChange} />
+              <LayoutBuilder
+                onLayoutChange={this.onLayoutChange}
+                onFieldSelect={this.onFieldSelect}
+              />
             </div>
             <div className="bg-white shadow-md">
-              <SchemaViewer fieldKey={'email'} />
+              <SchemaViewer fieldKey={this.state.fieldKey} />
             </div>
           </div>
         </div>
