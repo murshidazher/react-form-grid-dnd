@@ -22,7 +22,7 @@ export default class LayoutGridBuilder extends React.Component {
     return this.state.layout.map(function (l) {
       return (
         <div className="layoutItem" key={l.i}>
-          <b>{l.i}</b>: [{l.x}, {l.y}, {l.w}, {l.h}]
+          <b>{l.i}</b>: [{l.x}, {l.y}, {l.w}, {l.h}, {}]
         </div>
       )
     })

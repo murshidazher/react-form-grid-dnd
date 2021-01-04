@@ -31,10 +31,11 @@ export default class LayoutBuilder extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      currentBreakpoint: 'lg',
+      currentBreakpoint: 'sm',
       compactType: 'vertical',
       mounted: false,
-      layouts: { lg: props.initialLayout },
+      layouts: { sm: props.initialLayout },
+      layoutLength: props.initialLayout.length,
     }
 
     this.onBreakpointChange = this.onBreakpointChange.bind(this)
@@ -51,8 +52,15 @@ export default class LayoutBuilder extends React.Component {
   onInputChange() {}
 
   generateDOM = () => {
-    console.log('generate DOM', this.state.layouts.lg)
-    return _.orderBy(this.state.layouts.lg, ['y'], ['asc']).map((l, i) => {
+    console.log(
+      'generate DOM',
+      this.state.layouts[this.state.currentBreakpoint]
+    )
+    return _.orderBy(
+      this.state.layouts[this.state.currentBreakpoint],
+      ['y'],
+      ['asc']
+    ).map((l, i) => {
       return (
         <div key={i} className={l.static ? 'static' : ''}>
           {l.static ? (
@@ -63,7 +71,9 @@ export default class LayoutBuilder extends React.Component {
               Static - {i}
             </span>
           ) : i !== 0 ? (
-            <span className="text">{i}</span>
+            <span className="text">
+              {l.i} - {i}
+            </span>
           ) : (
             <>
               <input
@@ -73,6 +83,9 @@ export default class LayoutBuilder extends React.Component {
                 onSelect={() => this.onFieldSelect('email')}
               />
               <TextInput />
+              <span className="text">
+                {l.i} - {i}
+              </span>
             </>
           )}
         </div>
@@ -102,52 +115,59 @@ export default class LayoutBuilder extends React.Component {
   }
 
   onLayoutChange(layout, layouts) {
+    console.log('on Layout Change', layout, layouts)
     this.props.onLayoutChange(layout, layouts)
   }
 
   onNewLayout() {
     console.log('on Now Layout')
     this.setState({
-      layouts: { lg: generateLayout() },
+      layouts: { sm: generateLayout() },
     })
   }
 
-  onDragOver = (event) => {
-    event.preventDefault()
-    console.log('drag Over')
-  }
+  // onDragOver = (event) => {
+  //   event.preventDefault()
+  //   console.log('drag Over')
+  // }
 
-  onDragEnter = (event) => {
-    event.preventDefault()
-    console.log('drag enter')
-  }
+  // onDragEnter = (event) => {
+  //   event.preventDefault()
+  //   console.log('drag enter')
+  // }
 
-  onDrop = (item, event) => {
+  onDrop = (layout, item, event) => {
     // event.preventDefault()
-    console.log('on drop', this.state.layouts.lg)
+    console.log('on drop', this.state.layouts[this.state.currentBreakpoint])
+    console.log('layout', layout)
+    console.log(event)
 
-    // nextState(this, (draft) => {
-    //   draft.layouts.lg.push(item)
-    //   console.log('draft', draft.layouts.lg)
-    // })
+    const orderedLayout = _.orderBy(layout, ['y'], ['asc'])
+
+    console.log('orderedLayout', orderedLayout)
+
+    // this.onLayoutChange(orderedLayout, this.state.layouts)
 
     this.setState(
       produce((draft) => {
-        draft.layouts.lg.push({
-          x: item.x,
-          y: item.y,
-          w: item.w,
-          h: item.h,
-          i: draft.layouts.lg.length,
-          static: false,
-          resizeHandles: ['s', 'n'],
-          minH: 1,
-        })
+        // draft.layouts[this.state.currentBreakpoint].push({
+        //   x: layout[layout.length - 1].x,
+        //   y: layout[layout.length - 1].y,
+        //   w: layout[layout.length - 1].w,
+        //   h: layout[layout.length - 1].h,
+        //   i: `${draft.layouts[this.state.currentBreakpoint].length}`,
+        //   static: layout[layout.length - 1].state,
+        //   resizeHandles: layout[layout.length - 1].resizeHandles,
+        //   minH: layout[layout.length - 1].minH,
+        // })
+
+        // draft.layouts.lg = layout
+        draft.layouts[this.state.currentBreakpoint] = orderedLayout
+        draft.layoutLength = orderedLayout.length
         console.log('draft', draft)
+        console.log('draft', layout)
       })
     )
-
-    console.log(item)
   }
 
   render() {
@@ -183,8 +203,17 @@ export default class LayoutBuilder extends React.Component {
           isBounded={true}
           isDroppable={true}
           resizeHandles={['se', 'ne']}
-          onDrop={(layout, item, e) => this.onDrop(item, e)}
-          droppingItem={{ i: 'aa', w: 6, h: 4 }}
+          onDrop={(layout, item, e) => this.onDrop(layout, item, e)}
+          droppingItem={{
+            i: `${this.state.layoutLength}`,
+            w: 6,
+            h: 6,
+            minH: 2,
+            static: false,
+            isBounded: true,
+            isDroppable: true,
+            resizeHandles: ['s', 'n'],
+          }}
           resizeHandles={['s', 'n']}
           // resizeHandle={(resizeHandleAxis) => (
           //   <ResizeHandle axis={resizeHandleAxis} />
@@ -223,6 +252,8 @@ function generateLayout() {
       // static: Math.random() < 0.05,
       static: false,
       resizeHandles: ['s', 'n'],
+      isBounded: true,
+      isDroppable: true,
       // minW: ?number = 0,
       // maxW: ?number = Infinity,
       minH: 1,
