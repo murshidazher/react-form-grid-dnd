@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import _ from 'lodash'
 import ResizeHandle from '../resize-handle/resize-handle.component'
 import { Responsive, WidthProvider } from 'react-grid-layout'
+import produce from 'immer'
 const ResponsiveReactGridLayout = WidthProvider(Responsive)
 
 class TextInput extends React.Component {
@@ -50,7 +51,8 @@ export default class LayoutBuilder extends React.Component {
   onInputChange() {}
 
   generateDOM = () => {
-    return _.map(this.state.layouts.lg, (l, i) => {
+    console.log('generate DOM', this.state.layouts.lg)
+    return _.orderBy(this.state.layouts.lg, ['y'], ['asc']).map((l, i) => {
       return (
         <div key={i} className={l.static ? 'static' : ''}>
           {l.static ? (
@@ -104,6 +106,7 @@ export default class LayoutBuilder extends React.Component {
   }
 
   onNewLayout() {
+    console.log('on Now Layout')
     this.setState({
       layouts: { lg: generateLayout() },
     })
@@ -121,7 +124,29 @@ export default class LayoutBuilder extends React.Component {
 
   onDrop = (item, event) => {
     // event.preventDefault()
-    console.log('on drop')
+    console.log('on drop', this.state.layouts.lg)
+
+    // nextState(this, (draft) => {
+    //   draft.layouts.lg.push(item)
+    //   console.log('draft', draft.layouts.lg)
+    // })
+
+    this.setState(
+      produce((draft) => {
+        draft.layouts.lg.push({
+          x: item.x,
+          y: item.y,
+          w: item.w,
+          h: item.h,
+          i: draft.layouts.lg.length,
+          static: false,
+          resizeHandles: ['s', 'n'],
+          minH: 1,
+        })
+        console.log('draft', draft)
+      })
+    )
+
     console.log(item)
   }
 
@@ -185,6 +210,7 @@ LayoutBuilder.defaultProps = {
 }
 
 function generateLayout() {
+  console.log('on generateLayout')
   return _.map(_.range(0, 4), function (item, i) {
     var y = Math.ceil(Math.random() * 4) + 1
     return {
@@ -203,4 +229,8 @@ function generateLayout() {
       // maxH: Infinity,
     }
   })
+}
+
+function nextState(component, recipe) {
+  return () => component.setState(produce(recipe))
 }
