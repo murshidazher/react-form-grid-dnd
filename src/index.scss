@@ -17,7 +17,6 @@
   grid-template-columns: 0.8fr 3fr 1.2fr;
 }
 
-
 .a {
   background-color: white;
 }
@@ -49,6 +48,7 @@ body {
 
 .react-grid-item.react-grid-placeholder {
   background: yellowgreen;
+  border: 1px dotted blue;
   opacity: 0.2;
   transition-duration: 100ms;
   z-index: 2;

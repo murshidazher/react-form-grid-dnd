@@ -3,6 +3,8 @@ import './schema-viewer.styles.scss'
 import Icon from 'react-hero-icon'
 import _ from 'lodash'
 import clsx from 'clsx'
+import Input from '../common/input.component';
+import {insertSpaces} from '../../utils/capitalize';
 
 // what form to generate
 // key should be unique because its mapped to the properties name
@@ -59,7 +61,7 @@ const SchemaViewer = ({ fieldKey }) => {
     const result = _(schema.properties[fieldKey])
       .map((field, id) => {
         return (
-          <input key={`${fieldKey}_${id}`} type={'text'} defaultValue={field} />
+          <Input key={`${fieldKey}_${id}`} name={id} label={insertSpaces(id)} defaultValue={field} type={'text'} />
         )
       })
       .value()
