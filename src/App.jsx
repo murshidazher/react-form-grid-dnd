@@ -7,9 +7,9 @@ import DragContainer from './components/drag-container/drag-container.component'
 const App = (props) => (
   <div>
     <LayoutGridBuilder />
-    <DndProvider backend={HTML5Backend}>
+    {/* <DndProvider backend={HTML5Backend}>
       <DragContainer />
-    </DndProvider>
+    </DndProvider> */}
   </div>
 )
 

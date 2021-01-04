@@ -1,13 +1,18 @@
 import React, { useState, useCallback, useMemo } from 'react'
 import { useDrag } from 'react-dnd'
-import { Colors } from '../Colors'
-const style = {
-  border: '1px dashed gray',
-  padding: '0.5rem',
-  margin: '0.5rem',
-}
-export const DragSourceBox = ({ color, showForbid = false, children }) => {
-  const [forbidDrag, setForbidDrag] = useState(false)
+// const style = {
+//   border: '1px dashed gray',
+//   padding: '0.5rem',
+//   margin: '0.5rem',
+// }
+export const DragSourceBox = ({
+  color,
+  showForbid = false,
+  children,
+  className,
+  draggable = true,
+}) => {
+  const [forbidDrag, setForbidDrag] = useState(!draggable)
 
   const [{ isDragging }, drag] = useDrag({
     item: { type: `${color}` },
@@ -34,7 +39,7 @@ export const DragSourceBox = ({ color, showForbid = false, children }) => {
 
   const containerStyle = useMemo(
     () => ({
-      ...style,
+      // ...style,
       // backgroundColor,
       opacity: isDragging ? 0.4 : 1,
       cursor: forbidDrag ? 'default' : 'move',
@@ -43,7 +48,7 @@ export const DragSourceBox = ({ color, showForbid = false, children }) => {
   )
 
   return (
-    <div ref={drag} style={containerStyle}>
+    <div ref={drag} style={containerStyle} className={className}>
       {showForbid && (
         <input
           type="checkbox"
@@ -51,7 +56,7 @@ export const DragSourceBox = ({ color, showForbid = false, children }) => {
           onChange={onToggleForbidDrag}
         />
       )}
-      <small>{`Forbid ${color} drag`}</small>
+      {/* <small>{`Forbid ${color} drag`}</small> */}
       {children}
     </div>
   )

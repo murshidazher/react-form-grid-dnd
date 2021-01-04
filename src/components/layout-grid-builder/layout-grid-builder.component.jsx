@@ -36,7 +36,7 @@ export default class LayoutGridBuilder extends React.Component {
           <div className="columns">{this.stringifyLayout()}</div>
         </div>
         <div className="">
-          <div className="wrapper ">
+          <div className="wrapper flex">
             <div className="bg-white text-black shadow-md border-gray-200 border-r">
               <div className="px-1 text-sm font-semibold mb-2 mt-2">Fields</div>
               <FormBuilder />

@@ -1,6 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
+import ResizeHandle from '../resize-handle/resize-handle.component'
 import { Responsive, WidthProvider } from 'react-grid-layout'
 const ResponsiveReactGridLayout = WidthProvider(Responsive)
 
@@ -153,12 +154,16 @@ export default class LayoutBuilder extends React.Component {
           preventCollision={!this.state.compactType}
           // onDragEnter={this.onDragEnter}
           // onDragOver={this.onDragOver}
+          minH={32}
           isBounded={true}
           isDroppable={true}
           resizeHandles={['se', 'ne']}
           onDrop={(layout, item, e) => this.onDrop(item, e)}
           droppingItem={{ i: 'aa', w: 6, h: 4 }}
           resizeHandles={['s', 'n']}
+          // resizeHandle={(resizeHandleAxis) => (
+          //   <ResizeHandle axis={resizeHandleAxis} />
+          // )}
         >
           {this.generateDOM()}
         </ResponsiveReactGridLayout>
@@ -194,8 +199,8 @@ function generateLayout() {
       resizeHandles: ['s', 'n'],
       // minW: ?number = 0,
       // maxW: ?number = Infinity,
-      // minH: ?number = 0,
-      // maxH: ?number = Infinity,
+      minH: 1,
+      // maxH: Infinity,
     }
   })
 }
