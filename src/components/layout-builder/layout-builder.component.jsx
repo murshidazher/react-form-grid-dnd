@@ -118,9 +118,10 @@ export default class LayoutBuilder extends React.Component {
     console.log('drag enter')
   }
 
-  onDrop = (event) => {
-    event.preventDefault()
+  onDrop = (item, event) => {
+    // event.preventDefault()
     console.log('on drop')
+    console.log(item)
   }
 
   render() {
@@ -152,7 +153,12 @@ export default class LayoutBuilder extends React.Component {
           preventCollision={!this.state.compactType}
           // onDragEnter={this.onDragEnter}
           // onDragOver={this.onDragOver}
-          // onDrop={this.onFileDrop}
+          isBounded={true}
+          isDroppable={true}
+          resizeHandles={['se', 'ne']}
+          onDrop={(layout, item, e) => this.onDrop(item, e)}
+          droppingItem={{ i: 'aa', w: 6, h: 4 }}
+          resizeHandles={['s', 'n']}
         >
           {this.generateDOM()}
         </ResponsiveReactGridLayout>
@@ -185,6 +191,11 @@ function generateLayout() {
       i: i.toString(),
       // static: Math.random() < 0.05,
       static: false,
+      resizeHandles: ['s', 'n'],
+      // minW: ?number = 0,
+      // maxW: ?number = Infinity,
+      // minH: ?number = 0,
+      // maxH: ?number = Infinity,
     }
   })
 }
