@@ -1,4 +1,11 @@
-import React, { useState, memo, useMemo, useCallback } from 'react'
+import React, {
+  memo,
+  useState,
+  useMemo,
+  useCallback,
+  useRef,
+  useEffect,
+} from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 import ResizeHandle from '../resize-handle/resize-handle.component'
@@ -68,241 +75,186 @@ const withStatefulDrop = (BaseComponent) => (props) => {
   )
 }
 
-const MyGrid = memo(({ layouts, currentBreakpoint }) => {
-  const children = useMemo(() => {
-    return _.orderBy(layouts[currentBreakpoint], ['y'], ['asc']).map((l, i) => {
-      return (
-        <div key={i} className={l.static ? 'static' : ''} data-grid={l}>
-          {l.static ? (
-            <span
-              className="text"
-              title="This item is static and cannot be removed or resized."
-            >
-              Static - {i}
-            </span>
-          ) : i !== 0 ? (
-            <span className="text">
-              {l.i} - {i}
-            </span>
-          ) : (
-            <>
-              <input
-                type="text"
-                name="example"
-                id="example"
-                // onSelect={() => this.onFieldSelect('email')}
-              />
-              {/* <TextInput /> */}
-              <span className="text">
-                {l.i} - {i}
-              </span>
-            </>
-          )}
+// track what changed to optimize re-rendering
+function useTraceUpdate(props) {
+  const prev = useRef(props)
+  useEffect(() => {
+    const changedProps = Object.entries(props).reduce((ps, [k, v]) => {
+      if (prev.current[k] !== v) {
+        ps[k] = [prev.current[k], v]
+      }
+      return ps
+    }, {})
+    if (Object.keys(changedProps).length > 0) {
+      console.log('Changed props:', changedProps)
+    }
+    prev.current = props
+  })
+}
 
-          <span
-            className="remove"
-            style={removeStyle}
-            // onClick={this.onRemoveItem.bind(this, i)}
-          >
-            x
-          </span>
-        </div>
-      )
+const MyGrid = memo(
+  ({
+    initialLayout,
+    initialBreakpoint = 'sm',
+    initialCompactType = 'vertical',
+    handleLayoutChange,
+    handleFieldSelect,
+    ...rest
+  }) => {
+    const [currentBreakpoint, setCurrentBreakpoint] = useState(
+      initialBreakpoint
+    )
+    const [compactType, setCompactType] = useState(initialCompactType)
+    const [layouts, setLayouts] = useState({
+      [initialBreakpoint]: initialLayout,
+    }) // {sm: initialLayout}
+    const [layoutLength, setLayoutLength] = useState(0)
+    const mounted = useRef(true) // component mounted or not
+
+    useTraceUpdate({
+      initialLayout,
+      initialBreakpoint,
+      initialCompactType,
+      handleLayoutChange,
+      handleFieldSelect,
+      ...rest,
     })
-  }, [layouts])
 
-  return (
-    <>
-      <GridLayout cols={12}>{children}</GridLayout>
-    </>
-  )
-})
+    useEffect(() => {
+      console.log('use Effect called')
+      setLayoutLength(layouts[currentBreakpoint].length)
+      return () => {
+        mounted.current = false
+      }
+    }, []) // Using an empty dependency array ensures this only runs
 
-const StatefulMyGrid = withStatefulDrop(MyGrid)
-
-/* afdasfs */
-export default class LayoutBuilder extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      currentBreakpoint: 'sm',
-      compactType: 'vertical',
-      mounted: false,
-      layouts: { sm: props.initialLayout },
-      layoutLength: props.initialLayout.length,
+    // remove an item
+    const onRemoveItem = (i) => {
+      console.log('removing', i)
+      console.log('before', layouts)
+      setLayouts(
+        produce((prev) => {
+          prev[currentBreakpoint].splice(i, 1)
+        })
+      )
+      console.log('after', layouts)
+      setLayoutLength(layoutLength - 1)
     }
 
-    this.onBreakpointChange = this.onBreakpointChange.bind(this)
-    this.onCompactTypeChange = this.onCompactTypeChange.bind(this)
-    this.onLayoutChange = this.onLayoutChange.bind(this)
-    this.onNewLayout = this.onNewLayout.bind(this)
-    // this.onFieldSelect = this.onFieldSelect.bind(this)
-  }
+    const onBreakpointChange = (breakpoint) => setCurrentBreakpoint(breakpoint)
 
-  componentDidMount() {
-    this.setState({ mounted: true })
-  }
+    const onFieldSelect = (key) => handleFieldSelect(key)
 
-  onInputChange() {}
+    const onCompactTypeChange = () => {
+      const newCompactType =
+        compactType === 'horizontal'
+          ? 'vertical'
+          : compactType === 'vertical'
+          ? null
+          : 'horizontal'
 
-  onRemoveItem = (i) => {
-    console.log('removing', i)
-    this.setState(
-      produce((draft) => {
-        draft.layouts[this.state.currentBreakpoint].splice(i, 1)
-        draft.layoutLength -= draft.layoutLength
-      })
-    )
-  }
+      setCompactType(newCompactType)
+    }
 
-  generateDOM = () => {
-    console.log(
-      'generate DOM',
-      this.state.layouts[this.state.currentBreakpoint]
-    )
-    return _.orderBy(
-      this.state.layouts[this.state.currentBreakpoint],
-      ['y'],
-      ['asc']
-    ).map((l, i) => {
-      return (
-        <div key={i} className={l.static ? 'static' : ''} data-grid={l}>
-          {l.static ? (
-            <span
-              className="text"
-              title="This item is static and cannot be removed or resized."
-            >
-              Static - {i}
-            </span>
-          ) : i !== 0 ? (
-            <span className="text">
-              {l.i} - {i}
-            </span>
-          ) : (
-            <>
-              <input
-                type="text"
-                name="example"
-                id="example"
-                onSelect={() => this.onFieldSelect('email')}
-              />
-              {/* <TextInput /> */}
-              <span className="text">
-                {l.i} - {i}
-              </span>
-            </>
-          )}
+    const onLayoutChange = (layout, layouts) =>
+      handleLayoutChange(layout, layouts)
 
-          <span
-            className="remove"
-            style={removeStyle}
-            onClick={this.onRemoveItem.bind(this, i)}
-          >
-            x
-          </span>
-        </div>
+    const onNewLayout = () => {
+      setLayouts(
+        produce((prev) => {
+          prev[currentBreakpoint] = generateLayout()
+        })
       )
-    })
-  }
+    }
 
-  onBreakpointChange(breakpoint) {
-    this.setState({
-      currentBreakpoint: breakpoint,
-    })
-  }
+    const onDrop = (layout, item, event) => {
+      // event.preventDefault()
+      const orderedLayout = _.orderBy(layout, ['y'], ['asc'])
+      setLayouts(
+        produce((prev) => {
+          prev[currentBreakpoint] = orderedLayout
+        })
+      )
+      setLayoutLength(layoutLength + 1)
+    }
 
-  onFieldSelect = (key) => {
-    this.props.onFieldSelect(key)
-  }
+    const children = useMemo(() => {
+      console.log('children generate')
+      return _.orderBy(layouts[currentBreakpoint], ['y'], ['asc']).map(
+        (l, i) => {
+          return (
+            <div key={i} className={l.static ? 'static' : ''} data-grid={l}>
+              {l.static ? (
+                <span
+                  className="text"
+                  title="This item is static and cannot be removed or resized."
+                >
+                  Static - {i}
+                </span>
+              ) : i !== 0 ? (
+                <span className="text">
+                  {l.i} - {i}
+                </span>
+              ) : (
+                <>
+                  <input
+                    type="text"
+                    name="example"
+                    id="example"
+                    onSelect={() => onFieldSelect('email')}
+                  />
+                  {/* <TextInput /> */}
+                  <span className="text">
+                    {l.i} - {i}
+                  </span>
+                </>
+              )}
 
-  onCompactTypeChange() {
-    const { compactType: oldCompactType } = this.state
-    const compactType =
-      oldCompactType === 'horizontal'
-        ? 'vertical'
-        : oldCompactType === 'vertical'
-        ? null
-        : 'horizontal'
-    this.setState({ compactType })
-  }
+              <span
+                className="remove"
+                style={removeStyle}
+                onClick={() => onRemoveItem(i)}
+              >
+                x
+              </span>
+            </div>
+          )
+        }
+      )
+    }, [layouts])
 
-  onLayoutChange(layout, layouts) {
-    console.log('on Layout Change', layout, layouts)
-    this.props.onLayoutChange(layout, layouts)
-  }
-
-  onNewLayout() {
-    console.log('on Now Layout')
-    this.setState({
-      layouts: { sm: generateLayout() },
-    })
-  }
-
-  // onDragOver = (event) => {
-  //   event.preventDefault()
-  //   console.log('drag Over')
-  // }
-
-  // onDragEnter = (event) => {
-  //   event.preventDefault()
-  //   console.log('drag enter')
-  // }
-
-  onDrop = (layout, item, event) => {
-    // event.preventDefault()
-    const orderedLayout = _.orderBy(layout, ['y'], ['asc'])
-    this.setState(
-      produce((draft) => {
-        draft.layouts[this.state.currentBreakpoint] = orderedLayout
-        draft.layoutLength = orderedLayout.length
-        console.log('draft', draft)
-        console.log('draft', layout)
-      })
-    )
-  }
-
-  render() {
     return (
-      <div className="m-4">
+      <>
+        {console.log('rendered')}
         <div>
-          Current Breakpoint: {this.state.currentBreakpoint} (
-          {this.props.cols[this.state.currentBreakpoint]} columns)
+          Current Breakpoint: {currentBreakpoint} (
+          {rest.cols[currentBreakpoint]} columns)
         </div>
         <div>
-          Compaction type:{' '}
-          {_.capitalize(this.state.compactType) || 'No Compaction'}
+          Compaction type: {_.capitalize(compactType) || 'No Compaction'}
         </div>
-        <button onClick={this.onNewLayout}>Generate New Layout</button>
-        <button onClick={this.onCompactTypeChange}>
-          Change Compaction Type
-        </button>
-        <StatefulMyGrid
-          layouts={this.state.layouts}
-          currentBreakpoint={this.state.currentBreakpoint}
-        />
-        {/* <ResponsiveReactGridLayout
-          {...this.props}
-          layouts={this.state.layouts}
-          onBreakpointChange={this.onBreakpointChange}
-          onLayoutChange={this.onLayoutChange}
+        <button onClick={onNewLayout}>Generate New Layout</button>
+        <button onClick={onCompactTypeChange}>Change Compaction Type</button>
+        <ResponsiveReactGridLayout
+          {...rest}
+          layouts={layouts}
+          onBreakpointChange={onBreakpointChange}
+          onLayoutChange={handleLayoutChange}
           measureBeforeMount={false}
-          // I like to have it animate on mount. If you don't, delete `useCSSTransforms` (it's default `true`)
-          // and set `measureBeforeMount={true}`.
-          useCSSTransforms={this.state.mounted}
-          compactType={this.state.compactType}
-          preventCollision={!this.state.compactType}
+          useCSSTransforms={mounted.current}
+          compactType={compactType}
+          preventCollision={!compactType}
           // onDragEnter={this.onDragEnter}
           // onDragOver={this.onDragOver}
-          minH={32}
           isBounded={true}
           isDroppable={true}
           resizeHandles={['se', 'ne']}
-          onDrop={(layout, item, e) => this.onDrop(layout, item, e)}
+          onDrop={(layout, item, e) => onDrop(layout, item, e)}
           droppingItem={{
-            i: this.state.layoutLength.toString(),
+            i: layoutLength.toString(),
             w: 6,
             h: 6,
-            minH: 8,
+            minH: 2,
             static: false,
             isBounded: true,
             isDroppable: true,
@@ -314,8 +266,34 @@ export default class LayoutBuilder extends React.Component {
           //   <ResizeHandle axis={resizeHandleAxis} />
           // )}
         >
-          {this.generateDOM()}
-        </ResponsiveReactGridLayout> */}
+          {children}
+        </ResponsiveReactGridLayout>
+      </>
+    )
+  }
+)
+
+const StatefulMyGrid = withStatefulDrop(MyGrid)
+
+/* afdasfs */
+export default class LayoutBuilder extends React.Component {
+  constructor(props) {
+    super(props)
+  }
+
+  render() {
+    return (
+      <div className="m-4">
+        <StatefulMyGrid
+          cols={this.props.cols}
+          className={this.props.className}
+          rowHeight={this.props.rowHeight}
+          compactType={this.props.compactType}
+          initialLayout={this.props.initialLayout}
+          initialBreakpoint={this.props.initialBreakpoint}
+          handleLayoutChange={this.props.onLayoutChange}
+          handleFieldSelect={this.props.onFieldSelect}
+        />
       </div>
     )
   }
@@ -327,14 +305,15 @@ LayoutBuilder.propTypes = {
 
 LayoutBuilder.defaultProps = {
   className: 'layout',
-  rowHeight: 8,
+  rowHeight: 30,
+  initialBreakpoint: 'sm',
+  compactType: 'vertical',
   onLayoutChange: function () {},
   cols: { lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 },
   initialLayout: generateLayout(),
 }
 
 function generateLayout() {
-  console.log('on generateLayout')
   return _.map(_.range(0, 4), function (item, i) {
     var y = Math.ceil(Math.random() * 4) + 1
     return {
@@ -351,7 +330,7 @@ function generateLayout() {
       isDroppable: true,
       // minW: ?number = 0,
       // maxW: ?number = Infinity,
-      minH: 4,
+      minH: 2,
       // maxH: Infinity,
     }
   })

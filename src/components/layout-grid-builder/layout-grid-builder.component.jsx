@@ -33,7 +33,7 @@ export default class LayoutGridBuilder extends React.Component {
   render() {
     return (
       <DndProvider backend={HTML5Backend}>
-        <div className="text-black">
+        <div className="text-black font-sans">
           <div className="layoutJSON">
             Displayed as <code>[x, y, w, h]</code>:
             <div className="columns">{this.stringifyLayout()}</div>

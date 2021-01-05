@@ -3,6 +3,7 @@ import { DragSourceBox } from '../drag-source-box/drag-source-box.component'
 import { Colors } from '../Colors'
 import './form-builder.styles.scss'
 import Icon from 'react-hero-icon'
+import { SmileOutlined } from '@ant-design/icons'
 
 const FormBuilder = (props) => (
   <DragSourceBox draggable={false}>
@@ -13,7 +14,8 @@ const FormBuilder = (props) => (
           onClick={() => console.log('hi')}
         >
           <div className="mr-3 p-1 rounded-sm bg-gray-500">
-            <Icon className="h-3 w-3 text-white" icon="pencil" />
+            <SmileOutlined />
+            {/* <Icon className="h-3 w-3 text-white" icon="pencil" /> */}
           </div>
           {/* <i className="fas inline-block pr-2">
         
