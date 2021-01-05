@@ -143,16 +143,12 @@ const MyGrid = memo(
 
     const onDrop = (layout, item, event) => {
       // event.preventDefault()
-      console.log(item)
-      const orderedLayout = _.orderBy(layout, ['y'], ['asc'])
       setLayouts(
         produce((prev) => {
-          prev[currentBreakpoint] = orderedLayout
+          prev[currentBreakpoint] = layout
         })
       )
       setLayoutLength(layoutLength + 1)
-
-      onLayoutChange(layout)
     }
 
     const children = useMemo(() => {
