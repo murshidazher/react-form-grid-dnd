@@ -75,23 +75,6 @@ const withStatefulDrop = (BaseComponent) => (props) => {
   )
 }
 
-// track what changed to optimize re-rendering
-function useTraceUpdate(props) {
-  const prev = useRef(props)
-  useEffect(() => {
-    const changedProps = Object.entries(props).reduce((ps, [k, v]) => {
-      if (prev.current[k] !== v) {
-        ps[k] = [prev.current[k], v]
-      }
-      return ps
-    }, {})
-    if (Object.keys(changedProps).length > 0) {
-      console.log('Changed props:', changedProps)
-    }
-    prev.current = props
-  })
-}
-
 const MyGrid = memo(
   ({
     initialLayout,
@@ -108,21 +91,11 @@ const MyGrid = memo(
     const [layouts, setLayouts] = useState({
       [initialBreakpoint]: initialLayout,
     }) // {sm: initialLayout}
-    const [layoutLength, setLayoutLength] = useState(0)
+    const [layoutLength, setLayoutLength] = useState(initialLayout.length)
     const mounted = useRef(true) // component mounted or not
-
-    useTraceUpdate({
-      initialLayout,
-      initialBreakpoint,
-      initialCompactType,
-      handleLayoutChange,
-      handleFieldSelect,
-      ...rest,
-    })
 
     useEffect(() => {
       console.log('use Effect called')
-      setLayoutLength(layouts[currentBreakpoint].length)
       return () => {
         mounted.current = false
       }
@@ -156,8 +129,9 @@ const MyGrid = memo(
       setCompactType(newCompactType)
     }
 
-    const onLayoutChange = (layout, layouts) =>
-      handleLayoutChange(layout, layouts)
+    const onLayoutChange = (layout) => {
+      handleLayoutChange(layout)
+    }
 
     const onNewLayout = () => {
       setLayouts(
@@ -169,6 +143,7 @@ const MyGrid = memo(
 
     const onDrop = (layout, item, event) => {
       // event.preventDefault()
+      console.log(item)
       const orderedLayout = _.orderBy(layout, ['y'], ['asc'])
       setLayouts(
         produce((prev) => {
@@ -176,6 +151,8 @@ const MyGrid = memo(
         })
       )
       setLayoutLength(layoutLength + 1)
+
+      onLayoutChange(layout)
     }
 
     const children = useMemo(() => {
@@ -183,7 +160,7 @@ const MyGrid = memo(
       return _.orderBy(layouts[currentBreakpoint], ['y'], ['asc']).map(
         (l, i) => {
           return (
-            <div key={i} className={l.static ? 'static' : ''} data-grid={l}>
+            <div key={l.i} className={l.static ? 'static' : ''} data-grid={l}>
               {l.static ? (
                 <span
                   className="text"
@@ -240,7 +217,7 @@ const MyGrid = memo(
           layouts={layouts}
           onBreakpointChange={onBreakpointChange}
           onLayoutChange={handleLayoutChange}
-          measureBeforeMount={false}
+          measureBeforeMount={true}
           useCSSTransforms={mounted.current}
           compactType={compactType}
           preventCollision={!compactType}
@@ -251,7 +228,7 @@ const MyGrid = memo(
           resizeHandles={['se', 'ne']}
           onDrop={(layout, item, e) => onDrop(layout, item, e)}
           droppingItem={{
-            i: layoutLength.toString(),
+            i: 'n' + layoutLength.toString(),
             w: 6,
             h: 6,
             minH: 2,

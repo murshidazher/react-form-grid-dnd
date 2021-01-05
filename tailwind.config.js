@@ -313,7 +313,9 @@ module.exports = {
       disc: 'disc',
       decimal: 'decimal',
     },
-    margin: (theme, { negative }) => ({
+    margin: (theme, {
+      negative
+    }) => ({
       auto: 'auto',
       ...theme('spacing'),
       ...negative(theme('spacing')),

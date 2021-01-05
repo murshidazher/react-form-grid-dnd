@@ -46,7 +46,7 @@ export default class LayoutGridBuilder extends React.Component {
                 </div>
                 <FormBuilder />
               </div>
-              <div className="bg-indigo-50 shadow-md">
+              <div className="bg-backgroundLightest shadow-md">
                 <LayoutBuilder
                   onLayoutChange={this.onLayoutChange}
                   onFieldSelect={this.onFieldSelect}
