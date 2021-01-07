@@ -1,6 +1,6 @@
 # [react-form-grid-dnd](https://github.com/murshidazher/react-form-grid-dnd)
 
-> :warning: [experimental] drag grid [ongoing]
+> :warning: [experimental] [ongoing] drag grid
 
 - A basic plugin based dynamic form generation with schema and validations
 
