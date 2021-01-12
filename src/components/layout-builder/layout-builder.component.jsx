@@ -8,52 +8,23 @@ import React, {
 } from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
-import ResizeHandle from '../resize-handle/resize-handle.component'
 import { Responsive, WidthProvider } from 'react-grid-layout'
 import produce from 'immer'
-import { StatefulTargetBox as DragTargetBox } from '../drag-target-box/drag-target-box.component'
 const ResponsiveReactGridLayout = WidthProvider(Responsive)
 import GridLayout from 'react-grid-layout'
-
+import { getKeyByValue } from '../../utils/object'
+import Text from '../common/form/Text'
 import { useDrop } from 'react-dnd'
-import { Colors } from '../Colors'
-
-class TextInput extends React.Component {
-  state = {
-    value: '',
-  }
-  handleChange = (e) => this.setState({ value: e.target.value })
-  render() {
-    const { value } = this.state
-    return (
-      <div>
-        <input
-          className="myInput"
-          type="text"
-          value={value}
-          onChange={this.handleChange}
-        />
-        <div>Value: {value}</div>
-      </div>
-    )
-  }
-}
-
-const removeStyle = {
-  position: 'absolute',
-  right: '2px',
-  top: 0,
-  cursor: 'pointer',
-}
+import { FormElements } from '../FormElements'
+import SchemaForm from '../common/form/SchemaForm'
 
 // export default One
-
 const withStatefulDrop = (BaseComponent) => (props) => {
   const [lastDroppedColor, setLastDroppedColor] = useState(null)
   const onDrop = useCallback((color) => setLastDroppedColor(color), [])
 
   const [{ isOver, draggingColor, canDrop }, drop] = useDrop({
-    accept: [Colors.YELLOW, Colors.BLUE],
+    accept: [FormElements.markdown, FormElements.text],
     drop(item) {
       onDrop(item.type)
       return undefined
@@ -69,10 +40,36 @@ const withStatefulDrop = (BaseComponent) => (props) => {
     <div ref={drop}>
       <p>Drop here : {lastDroppedColor}.</p>
 
-      {!canDrop && lastDroppedColor && <p>Last dropped: {lastDroppedColor}</p>}
-      <BaseComponent {...props} />
+      {!canDrop && lastDroppedColor && (
+        <p>Last dropped item: {lastDroppedColor}</p>
+      )}
+      <BaseComponent {...props} droppedType={lastDroppedColor} />
     </div>
   )
+}
+
+const initialJSONSchema = {
+  type: 'object',
+  title: 'Comment',
+  required: ['form_element1'],
+  properties: {
+    form_element1: {
+      title: 'Name',
+      type: 'string',
+      default: 'Steve',
+    },
+  },
+}
+
+const initialUISchema = {
+  form_element1: {
+    type: 'text',
+    'ui:autofocus': true,
+  },
+}
+
+const mapper = {
+  text: Text,
 }
 
 const MyGrid = memo(
@@ -82,6 +79,8 @@ const MyGrid = memo(
     initialCompactType = 'vertical',
     handleLayoutChange,
     handleFieldSelect,
+    droppedType,
+    children,
     ...rest
   }) => {
     const [currentBreakpoint, setCurrentBreakpoint] = useState(
@@ -93,6 +92,8 @@ const MyGrid = memo(
     }) // {sm: initialLayout}
     const [layoutLength, setLayoutLength] = useState(initialLayout.length)
     const mounted = useRef(true) // component mounted or not
+    const [schema, setSchema] = useState(initialJSONSchema) // how the layout and fields
+    const [form, setForm] = useState(initialUISchema) //how it looks
 
     useEffect(() => {
       console.log('use Effect called')
@@ -103,14 +104,14 @@ const MyGrid = memo(
 
     // remove an item
     const onRemoveItem = (i) => {
-      console.log('removing', i)
-      console.log('before', layouts)
+      //console.log('removing', i)
+      //console.log('before', layouts)
       setLayouts(
         produce((prev) => {
           prev[currentBreakpoint].splice(i, 1)
         })
       )
-      console.log('after', layouts)
+      //console.log('after', layouts)
       setLayoutLength(layoutLength - 1)
     }
 
@@ -151,12 +152,34 @@ const MyGrid = memo(
       setLayoutLength(layoutLength + 1)
     }
 
-    const children = useMemo(() => {
-      console.log('children generate')
+    const builder = (form, key) => {
+      const Field = mapper[form.type]
+      if (!Field) {
+        return null
+      }
+
+      return (
+        <Field
+          key={key}
+          form={initialJSONSchema['properties'][key]}
+          error={''}
+        />
+      )
+    }
+
+    const generateChildren = useMemo(() => {
+      //console.log('children generate')
       return _.orderBy(layouts[currentBreakpoint], ['y'], ['asc']).map(
         (l, i) => {
+          console.log('data-grid', l)
           return (
-            <div key={l.i} className={l.static ? 'static' : ''} data-grid={l}>
+            <a
+              key={l.i}
+              id={l.i}
+              className={l.static ? 'static' : ''}
+              data-grid={l}
+              onClick={(e) => e.preventDefault()}
+            >
               {l.static ? (
                 <span
                   className="text"
@@ -164,11 +187,12 @@ const MyGrid = memo(
                 >
                   Static - {i}
                 </span>
-              ) : i !== 0 ? (
-                <span className="text">
-                  {l.i} - {i}
-                </span>
+              ) : l.i === 'form_element1' ? (
+                builder(form[l.i], l.i)
               ) : (
+                // <span className="text">
+                //   {l.i} - {i}
+                // </span>
                 <>
                   <input
                     type="text"
@@ -184,13 +208,12 @@ const MyGrid = memo(
               )}
 
               <span
-                className="remove"
-                style={removeStyle}
+                className="remove btn-remove"
                 onClick={() => onRemoveItem(i)}
               >
                 x
               </span>
-            </div>
+            </a>
           )
         }
       )
@@ -198,8 +221,11 @@ const MyGrid = memo(
 
     return (
       <>
-        {console.log('rendered')}
         <div>
+          <div className="div">
+            Dropped Type: {droppedType}{' '}
+            {getKeyByValue(FormElements, droppedType)}
+          </div>
           Current Breakpoint: {currentBreakpoint} (
           {rest.cols[currentBreakpoint]} columns)
         </div>
@@ -217,14 +243,12 @@ const MyGrid = memo(
           useCSSTransforms={mounted.current}
           compactType={compactType}
           preventCollision={!compactType}
-          // onDragEnter={this.onDragEnter}
-          // onDragOver={this.onDragOver}
           isBounded={true}
           isDroppable={true}
           resizeHandles={['se', 'ne']}
           onDrop={(layout, item, e) => onDrop(layout, item, e)}
           droppingItem={{
-            i: 'n' + layoutLength.toString(),
+            i: 'form_element' + layoutLength.toString(),
             w: 6,
             h: 6,
             minH: 2,
@@ -235,42 +259,15 @@ const MyGrid = memo(
             field: 'text',
           }}
           resizeHandles={['s', 'n']}
-          // resizeHandle={(resizeHandleAxis) => (
-          //   <ResizeHandle axis={resizeHandleAxis} />
-          // )}
         >
-          {children}
+          {children || generateChildren}
         </ResponsiveReactGridLayout>
       </>
     )
   }
 )
 
-const StatefulMyGrid = withStatefulDrop(MyGrid)
-
-/* afdasfs */
-export default class LayoutBuilder extends React.Component {
-  constructor(props) {
-    super(props)
-  }
-
-  render() {
-    return (
-      <div className="m-4">
-        <StatefulMyGrid
-          cols={this.props.cols}
-          className={this.props.className}
-          rowHeight={this.props.rowHeight}
-          compactType={this.props.compactType}
-          initialLayout={this.props.initialLayout}
-          initialBreakpoint={this.props.initialBreakpoint}
-          handleLayoutChange={this.props.onLayoutChange}
-          handleFieldSelect={this.props.onFieldSelect}
-        />
-      </div>
-    )
-  }
-}
+const LayoutBuilder = withStatefulDrop(MyGrid)
 
 LayoutBuilder.propTypes = {
   onLayoutChange: PropTypes.func.isRequired,
@@ -284,10 +281,13 @@ LayoutBuilder.defaultProps = {
   onLayoutChange: function () {},
   cols: { lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 },
   initialLayout: generateLayout(),
+  // generate: null,
 }
 
+export default LayoutBuilder
+
 function generateLayout() {
-  return _.map(_.range(0, 4), function (item, i) {
+  return _.map(_.range(0, 1), function (item, i) {
     var y = Math.ceil(Math.random() * 4) + 1
     return {
       // x: (_.random(0, 5) * 2) % 12,
@@ -307,8 +307,4 @@ function generateLayout() {
       // maxH: Infinity,
     }
   })
-}
-
-function nextState(component, recipe) {
-  return () => component.setState(produce(recipe))
 }
