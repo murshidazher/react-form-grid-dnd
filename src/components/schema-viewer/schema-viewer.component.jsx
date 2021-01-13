@@ -52,26 +52,34 @@ const initialSchema = {
   required: ['name', 'email', 'comment'],
 }
 
-const SchemaViewer = ({ fieldKey }) => {
-  const [schema, setSchema] = useState(initialSchema)
+const SchemaViewer = ({ form, fieldKey }) => {
+  // const [schema, setSchema] = useState(initialSchema)
   const [schemaElements, setSchemaElements] = useState([])
 
   useEffect(() => {
     if (fieldKey.length > 0) {
       generateSchemaForm()
     }
-  }, [schema, fieldKey])
+  }, [form, fieldKey])
 
   const generateSchemaForm = () => {
     // get the schema based on the fieldKey value
-    const result = _(schema.properties[fieldKey])
-      .map((field, id) => {
+    console.log('this is from schemaviewer', form)
+
+    const newForm = {
+      title: form['title'],
+      required: form['required'],
+    }
+
+    const result = _(newForm)
+      .map((val, id) => {
+        console.log('isnide the generator', val, id)
         return (
           <Input
             key={`${fieldKey}_${id}`}
             name={id}
             label={insertSpaces(id)}
-            defaultValue={field}
+            defaultValue={val}
             type={'text'}
           />
         )
@@ -92,19 +100,6 @@ const SchemaViewer = ({ fieldKey }) => {
         // className
       )}
     >
-      {/* <button
-        className="text-pink-500 bg-transparent border border-solid active:bg-pink-600 font-semi-bold text-xs px-4 py-2  outline-none focus:outline-none flex flex-wrap items-center"
-        type="button"
-        onClick={() => {
-          console.log('hi')
-          generateSchemaForm()
-        }}
-      >
-        <i className="fas inline-block pr-2">
-          <Icon className="h-4 w-4" icon="plus" />
-        </i>
-        Textbox
-      </button> */}
       <div key={fieldKey}>{schemaElements}</div>
     </div>
   )

@@ -1,6 +1,6 @@
 import React from 'react'
 import { DragSourceBox } from '../drag-source-box/drag-source-box.component'
-import { Colors } from '../Colors'
+import { FormElements } from '../FormElements'
 import './form-builder.styles.scss'
 import Icon from 'react-hero-icon'
 import { SmileOutlined } from '@ant-design/icons'
@@ -8,7 +8,7 @@ import { SmileOutlined } from '@ant-design/icons'
 const FormBuilder = (props) => (
   <DragSourceBox draggable={false}>
     <div className="text-black px-2">
-      <DragSourceBox color={Colors.YELLOW}>
+      <DragSourceBox color={FormElements.text}>
         <a
           className="cursor-move flex items-center font-medium text-sm px-3 hover:text-gray-900 transition-colors duration-200 mb-4 text-gray-900"
           onClick={() => console.log('hi')}

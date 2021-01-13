@@ -1,27 +1,40 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import LayoutBuilder from '../layout-builder/layout-builder.component'
 import FormBuilder from '../form-builder/form-builder.component'
 import SchemaViewer from '../schema-viewer/schema-viewer.component'
-import { DndProvider } from 'react-dnd'
-import { HTML5Backend } from 'react-dnd-html5-backend'
 
-export default class LayoutGridBuilder extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = { layout: [], fieldKey: '' }
-    // this.onLayoutChange = this.onLayoutChange.bind(this)
+const LayoutGridBuilder = () => {
+  // const [tests, setTests] = useState(
+  //   [
+  //     {
+  //       label: 'Login',
+  //       value: 'data/login.json',
+  //     },
+  //   ]
+  // )
+
+  // const [validationResult, setValidationResult] = useState({})
+  // const [schema, setSchema] = useState({})
+  // const [form, setForm] = useState([])
+  const [layout, setLayout] = useState({})
+  const [form, setForm] = useState({})
+  const [fieldKey, setFieldKey] = useState('')
+  // const [model, setModel] = useState({})
+  // const [model, setModel] = useState({})
+  // const [model, setModel] = useState({})
+  // const [model, setModel] = useState({})
+
+  const onLayoutChange = (layout) => {
+    setLayout(layout)
   }
 
-  onLayoutChange = (layout) => {
-    this.setState({ layout: layout })
+  const onFieldSelect = (form, key) => {
+    setFieldKey(key)
+    setForm(form)
   }
 
-  onFieldSelect = (key) => {
-    this.setState({ fieldKey: key })
-  }
-
-  stringifyLayout() {
-    return this.state.layout.map(function (l) {
+  const stringifyLayout = () => {
+    return layout.map((l) => {
       return (
         <div className="layoutItem" key={l.i}>
           <b>{l.i}</b>: [{l.x}, {l.y}, {l.w}, {l.h}, {}]
@@ -30,38 +43,36 @@ export default class LayoutGridBuilder extends React.Component {
     })
   }
 
-  render() {
-    return (
-      <DndProvider backend={HTML5Backend}>
-        <div className="text-black font-sans">
-          <div className="layoutJSON">
-            Displayed as <code>[x, y, w, h]</code>:
-            <div className="columns">{this.stringifyLayout()}</div>
-          </div>
-          <div className="">
-            <div className="wrapper flex">
-              <div className="bg-white text-black shadow-md border-gray-200 border-r">
-                <div className="px-1 text-sm font-semibold mb-2 mt-2">
-                  Fields
-                </div>
-                <FormBuilder />
-              </div>
-              <div className="bg-backgroundLightest shadow-md">
-                <LayoutBuilder
-                  onLayoutChange={this.onLayoutChange}
-                  onFieldSelect={this.onFieldSelect}
-                />
-              </div>
-              <div className="bg-white shadow-md">
-                <SchemaViewer fieldKey={this.state.fieldKey} />
-              </div>
+  return (
+    <>
+      <div className="text-black font-sans">
+        <div className="layoutJSON">
+          Displayed as <code>[x, y, w, h]</code>:
+          {/* <div className="columns">{stringifyLayout()}</div> */}
+        </div>
+        <div className="">
+          <div className="wrapper flex">
+            <div className="bg-white text-black shadow-md border-gray-200 border-r">
+              <div className="px-1 text-sm font-semibold mb-2 mt-2">Fields</div>
+              <FormBuilder />
+            </div>
+            <div className="bg-backgroundLightest shadow-md">
+              <LayoutBuilder
+                handleLayoutChange={onLayoutChange}
+                handleFieldSelect={onFieldSelect}
+              />
+            </div>
+            <div className="bg-white shadow-md">
+              <SchemaViewer form={form} fieldKey={fieldKey} />
             </div>
           </div>
         </div>
-      </DndProvider>
-    )
-  }
+      </div>
+    </>
+  )
 }
+
+export default LayoutGridBuilder
 
 // const contentDiv = document.getElementById("root");
 // const gridProps = window.gridProps || {};

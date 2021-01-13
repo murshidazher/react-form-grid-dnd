@@ -1,0 +1,31 @@
+{
+    "schema": {
+        "type": "object",
+        "title": "Sign In",
+        "required": ["userIdEmail", "password"],
+        "properties": {
+            "password": {
+                "title": "Password",
+                "type": "string"
+            }
+        }
+    },
+    "form": [{
+        "key": "password",
+        "type": "password"
+    }],
+    "layout": {
+        "sm": [{
+            "h": 2,
+            "i": "password",
+            "isBounded": true,
+            "isDroppable": true,
+            "minH": 2,
+            "resizeHandles": ["s", "n"],
+            "static": false,
+            "w": 6,
+            "x": 0,
+            "y": 0
+        }]
+    }
+}

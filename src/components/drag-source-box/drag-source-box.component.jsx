@@ -15,7 +15,9 @@ export const DragSourceBox = ({
   const [forbidDrag, setForbidDrag] = useState(!draggable)
 
   const [{ isDragging }, drag] = useDrag({
-    item: { type: `${color}` },
+    item: {
+      type: `${color}`,
+    },
     canDrag: !forbidDrag,
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
@@ -48,7 +50,14 @@ export const DragSourceBox = ({
   )
 
   return (
-    <div ref={drag} style={containerStyle} className={className}>
+    <div
+      ref={drag}
+      style={containerStyle}
+      className={('droppable-element', className)}
+      draggable={true}
+      unselectable="on"
+      onDragStart={(e) => e.dataTransfer.setData('text/plain', '')}
+    >
       {showForbid && (
         <input
           type="checkbox"

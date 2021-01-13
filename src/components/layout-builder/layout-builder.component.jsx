@@ -7,16 +7,34 @@ import React, {
   useEffect,
 } from 'react'
 import PropTypes from 'prop-types'
-import _ from 'lodash'
+import _, { template } from 'lodash'
 import { Responsive, WidthProvider } from 'react-grid-layout'
 import produce from 'immer'
 const ResponsiveReactGridLayout = WidthProvider(Responsive)
-import GridLayout from 'react-grid-layout'
 import { getKeyByValue } from '../../utils/object'
-import Text from '../common/form/Text'
 import { useDrop } from 'react-dnd'
 import { FormElements } from '../FormElements'
-import SchemaForm from '../common/form/SchemaForm'
+
+import merge from 'lodash/merge'
+import isNil from 'lodash/isNil'
+import utils from '../common/form/utils'
+import Number from '../common/form/Number'
+import Text from '../common/form/Text'
+import TextArea from '../common/form/TextArea'
+import Markdown from '../common/form/Markdown'
+import TextSuggest from '../common/form/TextSuggest'
+import Select from '../common/form/Select'
+import MultiSelect from '../common/form/MultiSelect'
+import Radios from '../common/form/Radios'
+import DateComponent from '../common/form/Date'
+import Timestamp from '../common/form/Timestamp'
+import Checkbox from '../common/form/Checkbox'
+import Help from '../common/form/Help'
+import Array from '../common/form/Array'
+import FieldSet from '../common/form/FieldSet'
+import TripleBoolean from '../common/form/TripleBoolean'
+import Taxonomy from '../common/form/Taxonomy'
+import { ForumRounded } from '@material-ui/icons'
 
 // export default One
 const withStatefulDrop = (BaseComponent) => (props) => {
@@ -48,28 +66,20 @@ const withStatefulDrop = (BaseComponent) => (props) => {
   )
 }
 
-const initialJSONSchema = {
-  type: 'object',
-  title: 'Comment',
-  required: ['form_element1'],
-  properties: {
-    form_element1: {
-      title: 'Name',
-      type: 'string',
-      default: 'Steve',
-    },
-  },
-}
+// const initialUISchema = {
+//   form_element1: {
+//     type: 'text',
+//     'ui:autofocus': true,
+//   },
+// }
 
-const initialUISchema = {
-  form_element1: {
-    type: 'text',
-    'ui:autofocus': true,
-  },
-}
-
-const mapper = {
-  text: Text,
+const formatDate = (date) => {
+  let value =
+    (date && typeof date === 'object' && date.toISOString().slice(0, 10)) ||
+    date
+  if (!value) value = ''
+  if (value.length > 0) value = new Date(value).toISOString().slice(0, 10)
+  return value
 }
 
 const MyGrid = memo(
@@ -80,28 +90,77 @@ const MyGrid = memo(
     handleLayoutChange,
     handleFieldSelect,
     droppedType,
-    children,
+    initialSchema,
+    initialForm,
+    mapper,
+    ignore,
+    option,
+    initialModel,
+    localization,
+    showErrors,
+    evalContext,
+    errors,
     ...rest
   }) => {
     const [currentBreakpoint, setCurrentBreakpoint] = useState(
       initialBreakpoint
     )
     const [compactType, setCompactType] = useState(initialCompactType)
-    const [layouts, setLayouts] = useState({
-      [initialBreakpoint]: initialLayout,
-    }) // {sm: initialLayout}
+    const [layouts, setLayouts] = useState({}) // {sm: initialLayout}
     const [layoutLength, setLayoutLength] = useState(initialLayout.length)
     const mounted = useRef(true) // component mounted or not
-    const [schema, setSchema] = useState(initialJSONSchema) // how the layout and fields
-    const [form, setForm] = useState(initialUISchema) //how it looks
+    const [schema, setSchema] = useState(initialSchema) // how the layout and fields
+    const [form, setForm] = useState(initialForm) //how it looks
+    const [model, setModel] = useState(initialModel) //how it looks
+
+    mapper = {
+      number: Number,
+      text: Text,
+      password: Text,
+      textarea: TextArea,
+      markdown: Markdown,
+      textsuggest: TextSuggest,
+      select: Select,
+      taxonomy: Taxonomy,
+      radios: Radios,
+      date: DateComponent,
+      timestamp: Timestamp,
+      checkbox: Checkbox,
+      help: Help,
+      array: Array,
+      tBoolean: TripleBoolean,
+      fieldset: FieldSet,
+      tuple: FieldSet,
+      multiselect: MultiSelect,
+    }
 
     useEffect(() => {
       console.log('use Effect called')
+      setValues()
+
       return () => {
         mounted.current = false
       }
     }, []) // Using an empty dependency array ensures this only runs
 
+    const onModelChange = (key, val, type) => {
+      const newModel = model
+      utils.selectOrSet(key, newModel, val, type)
+      setModel(newModel)
+    }
+
+    const setValues = async () => {
+      const initial = onSelectChange({
+        target: { value: 'data/login.json' },
+      }).then((res) => {
+        setLayouts(res['initialLayout'])
+        setSchema(res['initialSchema'])
+        setForm(res['initialForm'])
+        setLayoutLength(res['initialLayout']['sm'].length)
+        mapper = res['mapper']
+        setModel(res['model'])
+      })
+    }
     // remove an item
     const onRemoveItem = (i) => {
       //console.log('removing', i)
@@ -117,7 +176,7 @@ const MyGrid = memo(
 
     const onBreakpointChange = (breakpoint) => setCurrentBreakpoint(breakpoint)
 
-    const onFieldSelect = (key) => handleFieldSelect(key)
+    const onFieldSelect = (form, key) => handleFieldSelect(form, key)
 
     const onCompactTypeChange = () => {
       const newCompactType =
@@ -144,83 +203,195 @@ const MyGrid = memo(
 
     const onDrop = (layout, item, event) => {
       // event.preventDefault()
+      // console.log('layout', layout)
+
+      const newLayout = layouts[currentBreakpoint]
+      newLayout[0].y = layout[0].y
+      newLayout[0].x = layout[0].x
+      newLayout[1] = layout[1]
       setLayouts(
         produce((prev) => {
-          prev[currentBreakpoint] = layout
+          prev[currentBreakpoint] = newLayout
         })
       )
       setLayoutLength(layoutLength + 1)
+
+      setForm(
+        produce((prev) => {
+          prev.push('form_element0')
+        })
+      )
+
+      setSchema(
+        produce((prev) => {
+          prev['properties']['form_element0'] = {
+            title: 'Name',
+            type: 'string',
+            default: 'Steve',
+          }
+        })
+      )
     }
 
-    const builder = (form, key) => {
+    // Assign default values and save it to the model
+    const setDefault = (key, model, form, value) => {
+      // console.log('\t\tSchema Form - setDefault', key, model, form, value)
+      const currentValue = utils.selectOrSet(key, model)
+
+      // If current value is not setted and exist a default, apply the default over the model
+      if (isNil(currentValue) && !isNil(value))
+        onModelChange(key, value, form.type, form)
+    }
+
+    const getLocalization = () => {
+      // console.log('\t\tSchema Form - getLocalization', localization)
+      return {
+        getLocalizedString:
+          localization && localization.getLocalizedString
+            ? localization.getLocalizedString
+            : (value) => value,
+        getLocalizedNumber:
+          localization && localization.getLocalizedNumber
+            ? localization.getLocalizedNumber
+            : (value) => value,
+        getLocalizedDate:
+          localization && localization.getLocalizedDate
+            ? localization.getLocalizedDate
+            : formatDate,
+      }
+    }
+
+    const builder = (form, model, index, mapper, onChange, builder) => {
+      console.log('inside builder schemeForm')
       const Field = mapper[form.type]
       if (!Field) {
         return null
       }
 
+      // Apply conditionals to review if this field must be rendered
+      if (
+        form.condition &&
+        !utils.safeEval(form.condition, {
+          model,
+          form,
+          ...evalContext,
+        })
+      ) {
+        return null
+      }
+
+      const key = (form.key && form.key.join('.')) || index
+
+      const error = errors && key in errors ? errors[key] : null
+
+      console.log('the key is ', key)
+
+      const idx = utils.getIndexFromLayout(layouts[currentBreakpoint], key)
+      const grid = layouts[currentBreakpoint][idx]
       return (
-        <Field
-          key={key}
-          form={initialJSONSchema['properties'][key]}
-          error={''}
-        />
+        <div
+          key={idx}
+          id={key}
+          className={grid.static ? 'form-block static' : 'form-block'}
+          data-grid={grid}
+          onSelect={() => onFieldSelect(form, key)}
+        >
+          <Field
+            model={model}
+            form={form}
+            key={key}
+            onChange={onChange}
+            setDefault={setDefault}
+            mapper={mapper}
+            builder={builder}
+            errorText={error}
+            localization={getLocalization()}
+            showErrors={showErrors}
+          />
+          <span className="remove btn-remove" onClick={() => onRemoveItem(i)}>
+            x
+          </span>
+        </div>
       )
     }
 
-    const generateChildren = useMemo(() => {
-      //console.log('children generate')
-      return _.orderBy(layouts[currentBreakpoint], ['y'], ['asc']).map(
-        (l, i) => {
-          console.log('data-grid', l)
-          return (
-            <a
-              key={l.i}
-              id={l.i}
-              className={l.static ? 'static' : ''}
-              data-grid={l}
-              onClick={(e) => e.preventDefault()}
-            >
-              {l.static ? (
-                <span
-                  className="text"
-                  title="This item is static and cannot be removed or resized."
-                >
-                  Static - {i}
-                </span>
-              ) : l.i === 'form_element1' ? (
-                builder(form[l.i], l.i)
-              ) : (
-                // <span className="text">
-                //   {l.i} - {i}
-                // </span>
-                <>
-                  <input
-                    type="text"
-                    name="example"
-                    id="example"
-                    onSelect={() => onFieldSelect('email')}
-                  />
-                  {/* <TextInput /> */}
-                  <span className="text">
-                    {l.i} - {i}
-                  </span>
-                </>
-              )}
+    const children = useMemo(() => {
+      if (form) {
+        const merged = utils.merge(schema, form, ignore, option, null)
 
-              <span
-                className="remove btn-remove"
-                onClick={() => onRemoveItem(i)}
-              >
-                x
-              </span>
-            </a>
-          )
+        let mergedMapper = mapper
+        if (mapper) {
+          mergedMapper = merge(mapper, mapper)
         }
-      )
-    }, [layouts])
+
+        return merged.map((formPart, index) => {
+          return builder(
+            formPart,
+            model,
+            index,
+            mergedMapper,
+            onModelChange,
+            builder
+          )
+        })
+      }
+    }, [schema, form, layouts])
+
+    // const generateChildren = useMemo(() => {
+    //   console.log('children generate', layouts)
+    //   return _.orderBy(layouts[currentBreakpoint], ['y'], ['asc']).map(
+    //     (l, i) => {
+    //       console.log('data-grid', l)
+    //       return (
+    //         <a
+    //           key={l.i}
+    //           id={l.i}
+    //           className={l.static ? 'static' : ''}
+    //           data-grid={l}
+    //           onClick={(e) => e.preventDefault()}
+    //         >
+    //           {l.static ? (
+    //             <span
+    //               className="text"
+    //               title="This item is static and cannot be removed or resized."
+    //             >
+    //               Static - {i}
+    //             </span>
+    //           ) : l.i === 'form_element1' ? (
+    //             builder(form[l.i], l.i)
+    //           ) : (
+    //             // <span className="text">
+    //             //   {l.i} - {i}
+    //             // </span>
+    //             <>
+    //               <input
+    //                 type="text"
+    //                 name="example"
+    //                 id="example"
+    //                 onSelect={() => onFieldSelect('email')}
+    //               />
+    //               {/* <TextInput /> */}
+    //               <span className="text">
+    //                 {l.i} - {i}
+    //               </span>
+    //             </>
+    //           )}
+
+    //           <span
+    //             className="remove btn-remove"
+    //             onClick={() => onRemoveItem(i)}
+    //           >
+    //             x
+    //           </span>
+    //         </a>
+    //       )
+    //     }
+    //   )
+    // }, [layouts])
 
     return (
       <>
+        {console.log('renddder')}
         <div>
           <div className="div">
             Dropped Type: {droppedType}{' '}
@@ -248,9 +419,9 @@ const MyGrid = memo(
           resizeHandles={['se', 'ne']}
           onDrop={(layout, item, e) => onDrop(layout, item, e)}
           droppingItem={{
-            i: 'form_element' + layoutLength.toString(),
+            i: 'form_element0',
             w: 6,
-            h: 6,
+            h: 2,
             minH: 2,
             static: false,
             isBounded: true,
@@ -260,31 +431,12 @@ const MyGrid = memo(
           }}
           resizeHandles={['s', 'n']}
         >
-          {children || generateChildren}
+          {children}
         </ResponsiveReactGridLayout>
       </>
     )
   }
 )
-
-const LayoutBuilder = withStatefulDrop(MyGrid)
-
-LayoutBuilder.propTypes = {
-  onLayoutChange: PropTypes.func.isRequired,
-}
-
-LayoutBuilder.defaultProps = {
-  className: 'layout',
-  rowHeight: 30,
-  initialBreakpoint: 'sm',
-  compactType: 'vertical',
-  onLayoutChange: function () {},
-  cols: { lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 },
-  initialLayout: generateLayout(),
-  // generate: null,
-}
-
-export default LayoutBuilder
 
 function generateLayout() {
   return _.map(_.range(0, 1), function (item, i) {
@@ -308,3 +460,78 @@ function generateLayout() {
     }
   })
 }
+
+const onSelectChange = async ({ target: { value } }) => {
+  let temp = {}
+  if (!value) {
+    temp = {
+      schemaJson: '',
+      formJson: '',
+      layoutJson: '',
+      selected: '',
+      initialSchema: {},
+      initialLayout: {},
+      model: {},
+      initialForm: [],
+      showErrors: false,
+    }
+
+    return temp
+  }
+
+  if (!value.endsWith('json')) {
+    const elem = examples[value]
+    temp = {
+      schemaJson: JSON.stringify(elem.schema, undefined, 2),
+      formJson: JSON.stringify(elem.form, undefined, 2),
+      layoutJson: JSON.stringify(elem.layout, undefined, 2),
+      selected: value,
+      initialSchema: elem.schema,
+      model: elem.model || {},
+      initialLayout: elem.layout,
+      initialForm: elem.form,
+      localization: elem.localization,
+      showErrors: false,
+    }
+
+    return temp
+  } else {
+    return fetch(value)
+      .then((x) => x.json())
+      .then(({ form, schema, model, layout }) => {
+        temp = {
+          schemaJson: JSON.stringify(schema, undefined, 2),
+          formJson: JSON.stringify(form, undefined, 2),
+          layoutJson: JSON.stringify(layout, undefined, 2),
+          selected: value,
+          initialSchema: schema,
+          initialLayout: layout,
+          model: model || {},
+          initialForm: form,
+          showErrors: false,
+        }
+
+        return temp
+      })
+  }
+}
+
+const LayoutBuilder = withStatefulDrop(MyGrid)
+
+LayoutBuilder.propTypes = {
+  onLayoutChange: PropTypes.func.isRequired,
+}
+
+LayoutBuilder.defaultProps = {
+  className: 'layout',
+  rowHeight: 30,
+  initialBreakpoint: 'sm',
+  compactType: 'vertical',
+  onLayoutChange: function () {},
+  cols: { lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 },
+  initialLayout: {},
+  localization: undefined,
+  showErrors: false,
+}
+
+export default LayoutBuilder
