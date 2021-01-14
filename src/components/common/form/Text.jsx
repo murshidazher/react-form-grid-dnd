@@ -5,7 +5,7 @@
 import React from 'react'
 import TextField from '@material-ui/core/TextField'
 import ComposedComponent from './ComposedComponent'
-import type { Localization } from './types'
+import type {Localization} from './types'
 
 type Props = {
   form: any,
@@ -15,14 +15,15 @@ type Props = {
   error: any,
   onChangeValidate: any,
   localization: Localization,
+  disabled: Boolean,
   otherProps?: any,
 }
 
 class Text extends React.Component<Props> {
   constructor(props) {
     super(props)
-    const { model, form, value, setDefault } = this.props
-    const { key } = form
+    const {model, form, value, setDefault} = this.props
+    const {key} = form
     setDefault(key, model, form, value)
   }
 
@@ -32,8 +33,9 @@ class Text extends React.Component<Props> {
       error,
       value,
       onChangeValidate,
-      localization: { getLocalizedString },
+      localization: {getLocalizedString},
       otherProps,
+      disabled,
     } = this.props
 
     // console.log('text', this.props)
@@ -51,7 +53,7 @@ class Text extends React.Component<Props> {
         error={!!error}
         onChange={onChangeValidate}
         value={value || ''}
-        disabled={form.readonly}
+        disabled={form.readonly || disabled}
         fullWidth
         required={form.required}
         style={form.style}

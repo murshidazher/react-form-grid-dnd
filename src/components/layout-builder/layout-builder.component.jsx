@@ -7,41 +7,29 @@ import React, {
   useEffect,
 } from 'react'
 import PropTypes from 'prop-types'
-import _, { template } from 'lodash'
-import { Responsive, WidthProvider } from 'react-grid-layout'
+import _, {template} from 'lodash'
+import {Responsive, WidthProvider} from 'react-grid-layout'
 import produce from 'immer'
 const ResponsiveReactGridLayout = WidthProvider(Responsive)
-import { getKeyByValue } from '../../utils/object'
-import { useDrop } from 'react-dnd'
-import { FormElements } from '../FormElements'
+import {getKeyByValue} from '../../utils/object'
+import {useDrop} from 'react-dnd'
+import {FormElements} from '../FormElements'
 
 import merge from 'lodash/merge'
 import isNil from 'lodash/isNil'
 import utils from '../common/form/utils'
-import Number from '../common/form/Number'
-import Text from '../common/form/Text'
-import TextArea from '../common/form/TextArea'
-import Markdown from '../common/form/Markdown'
-import TextSuggest from '../common/form/TextSuggest'
-import Select from '../common/form/Select'
-import MultiSelect from '../common/form/MultiSelect'
-import Radios from '../common/form/Radios'
-import DateComponent from '../common/form/Date'
-import Timestamp from '../common/form/Timestamp'
-import Checkbox from '../common/form/Checkbox'
-import Help from '../common/form/Help'
-import Array from '../common/form/Array'
-import FieldSet from '../common/form/FieldSet'
-import TripleBoolean from '../common/form/TripleBoolean'
-import Taxonomy from '../common/form/Taxonomy'
-import { ForumRounded } from '@material-ui/icons'
+
+import {connect} from 'react-redux'
+import {createStructuredSelector} from 'reselect'
+
+import {selectMapperSections} from '../../redux/mapper/mapper.selectors'
 
 // export default One
 const withStatefulDrop = (BaseComponent) => (props) => {
   const [lastDroppedColor, setLastDroppedColor] = useState(null)
   const onDrop = useCallback((color) => setLastDroppedColor(color), [])
 
-  const [{ isOver, draggingColor, canDrop }, drop] = useDrop({
+  const [{isOver, draggingColor, canDrop}, drop] = useDrop({
     accept: [FormElements.markdown, FormElements.text],
     drop(item) {
       onDrop(item.type)
@@ -103,7 +91,7 @@ const MyGrid = memo(
     ...rest
   }) => {
     const [currentBreakpoint, setCurrentBreakpoint] = useState(
-      initialBreakpoint
+      initialBreakpoint,
     )
     const [compactType, setCompactType] = useState(initialCompactType)
     const [layouts, setLayouts] = useState({}) // {sm: initialLayout}
@@ -112,27 +100,6 @@ const MyGrid = memo(
     const [schema, setSchema] = useState(initialSchema) // how the layout and fields
     const [form, setForm] = useState(initialForm) //how it looks
     const [model, setModel] = useState(initialModel) //how it looks
-
-    mapper = {
-      number: Number,
-      text: Text,
-      password: Text,
-      textarea: TextArea,
-      markdown: Markdown,
-      textsuggest: TextSuggest,
-      select: Select,
-      taxonomy: Taxonomy,
-      radios: Radios,
-      date: DateComponent,
-      timestamp: Timestamp,
-      checkbox: Checkbox,
-      help: Help,
-      array: Array,
-      tBoolean: TripleBoolean,
-      fieldset: FieldSet,
-      tuple: FieldSet,
-      multiselect: MultiSelect,
-    }
 
     useEffect(() => {
       console.log('use Effect called')
@@ -150,8 +117,8 @@ const MyGrid = memo(
     }
 
     const setValues = async () => {
-      const initial = onSelectChange({
-        target: { value: 'data/login.json' },
+      onSelectChange({
+        target: {value: 'data/login.json'},
       }).then((res) => {
         setLayouts(res['initialLayout'])
         setSchema(res['initialSchema'])
@@ -168,7 +135,7 @@ const MyGrid = memo(
       setLayouts(
         produce((prev) => {
           prev[currentBreakpoint].splice(i, 1)
-        })
+        }),
       )
       //console.log('after', layouts)
       setLayoutLength(layoutLength - 1)
@@ -176,7 +143,10 @@ const MyGrid = memo(
 
     const onBreakpointChange = (breakpoint) => setCurrentBreakpoint(breakpoint)
 
-    const onFieldSelect = (form, key) => handleFieldSelect(form, key)
+    const onFieldSelect = (form, key) => {
+      console.log('ddfdfsfadfds')
+      handleFieldSelect(form, key)
+    }
 
     const onCompactTypeChange = () => {
       const newCompactType =
@@ -197,7 +167,7 @@ const MyGrid = memo(
       setLayouts(
         produce((prev) => {
           prev[currentBreakpoint] = generateLayout()
-        })
+        }),
       )
     }
 
@@ -212,14 +182,14 @@ const MyGrid = memo(
       setLayouts(
         produce((prev) => {
           prev[currentBreakpoint] = newLayout
-        })
+        }),
       )
       setLayoutLength(layoutLength + 1)
 
       setForm(
         produce((prev) => {
           prev.push('form_element0')
-        })
+        }),
       )
 
       setSchema(
@@ -229,7 +199,7 @@ const MyGrid = memo(
             type: 'string',
             default: 'Steve',
           }
-        })
+        }),
       )
     }
 
@@ -294,8 +264,7 @@ const MyGrid = memo(
           id={key}
           className={grid.static ? 'form-block static' : 'form-block'}
           data-grid={grid}
-          onSelect={() => onFieldSelect(form, key)}
-        >
+          onClick={() => onFieldSelect(form, key)}>
           <Field
             model={model}
             form={form}
@@ -307,8 +276,9 @@ const MyGrid = memo(
             errorText={error}
             localization={getLocalization()}
             showErrors={showErrors}
+            disabled
           />
-          <span className="remove btn-remove" onClick={() => onRemoveItem(i)}>
+          <span className="remove btn-remove" onClick={() => onRemoveItem(key)}>
             x
           </span>
         </div>
@@ -331,7 +301,7 @@ const MyGrid = memo(
             index,
             mergedMapper,
             onModelChange,
-            builder
+            builder,
           )
         })
       }
@@ -429,13 +399,12 @@ const MyGrid = memo(
             resizeHandles: ['s', 'n'],
             field: 'text',
           }}
-          resizeHandles={['s', 'n']}
-        >
+          resizeHandles={['s', 'n']}>
           {children}
         </ResponsiveReactGridLayout>
       </>
     )
-  }
+  },
 )
 
 function generateLayout() {
@@ -461,7 +430,7 @@ function generateLayout() {
   })
 }
 
-const onSelectChange = async ({ target: { value } }) => {
+const onSelectChange = async ({target: {value}}) => {
   let temp = {}
   if (!value) {
     temp = {
@@ -498,7 +467,7 @@ const onSelectChange = async ({ target: { value } }) => {
   } else {
     return fetch(value)
       .then((x) => x.json())
-      .then(({ form, schema, model, layout }) => {
+      .then(({form, schema, model, layout}) => {
         temp = {
           schemaJson: JSON.stringify(schema, undefined, 2),
           formJson: JSON.stringify(form, undefined, 2),
@@ -528,10 +497,14 @@ LayoutBuilder.defaultProps = {
   initialBreakpoint: 'sm',
   compactType: 'vertical',
   onLayoutChange: function () {},
-  cols: { lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 },
+  cols: {lg: 12, md: 10, sm: 6, xs: 4, xxs: 2},
   initialLayout: {},
   localization: undefined,
   showErrors: false,
 }
 
-export default LayoutBuilder
+const mapStateToProps = createStructuredSelector({
+  mapper: selectMapperSections,
+})
+
+export default connect(mapStateToProps)(LayoutBuilder)

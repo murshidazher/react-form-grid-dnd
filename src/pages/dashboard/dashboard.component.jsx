@@ -6,21 +6,14 @@ import {HTML5Backend} from 'react-dnd-html5-backend'
 import {connect} from 'react-redux'
 import {createStructuredSelector} from 'reselect'
 
-import {selectMapperSections} from '../../redux/mapper/mapper.selectors'
-
-const Dashboard = ({sections}) => (
+const Dashboard = () => (
   <DndProvider backend={HTML5Backend}>
     <div>
       <LayoutGridBuilder />
     </div>
-    {sections.map(({title, ...otherSectionProps}) => (
-      <li>{title}</li>
-    ))}
   </DndProvider>
 )
 
-const mapStateToProps = createStructuredSelector({
-  sections: selectMapperSections,
-})
+const mapStateToProps = createStructuredSelector({})
 
 export default connect(mapStateToProps)(Dashboard)

@@ -10,7 +10,7 @@ import mapperReducer from './mapper/mapper.reducer'
 const persistConfig = {
   key: 'root', // we need to store from the root
   storage,
-  //   whitelist: ["cart"],
+  blacklist: ['mapper'],
 }
 
 // this return a giant object by combining all the slices
