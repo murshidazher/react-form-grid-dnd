@@ -29,7 +29,7 @@ import {
 
 import StatefulDrop from '../stateful-drop/stateful-drop.hoc'
 
-const MyGrid = memo(
+const CustomGrid = memo(
   ({
     initialLayout,
     initialBreakpoint = 'sm',
@@ -419,7 +419,7 @@ const onSelectChange = async ({target: {value}}) => {
   }
 }
 
-const LayoutBuilder = StatefulDrop(MyGrid)
+const LayoutBuilder = StatefulDrop(CustomGrid)
 
 LayoutBuilder.propTypes = {
   onLayoutChange: PropTypes.func.isRequired,
