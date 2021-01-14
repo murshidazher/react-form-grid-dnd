@@ -1,0 +1,37 @@
+/* Input */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.form-control {
+    @apply flex flex-col;
+}
+
+.label {
+    @apply flex items-center justify-between select-none;
+}
+
+
+.input {
+    @apply transition duration-200 ease-in-out w-full flex-shrink;
+
+    & {
+        @apply px-4 h-12 text-sm leading-loose;
+    }
+
+    &-lg {
+        @apply px-6 h-16 text-lg leading-loose;
+    }
+
+    &-sm {
+        @apply px-3 h-8 text-sm leading-8;
+    }
+
+    &-xs {
+        @apply px-2 h-6 text-xs leading-relaxed;
+    }
+
+    &:focus {
+        @apply outline-none;
+    }
+}

@@ -1,12 +1,8 @@
-import React, { useState, useCallback, useMemo } from 'react'
-import { useDrag } from 'react-dnd'
-// const style = {
-//   border: '1px dashed gray',
-//   padding: '0.5rem',
-//   margin: '0.5rem',
-// }
+import React, {useState, useCallback, useMemo} from 'react'
+import {useDrag} from 'react-dnd'
+
 export const DragSourceBox = ({
-  color,
+  element,
   showForbid = false,
   children,
   className,
@@ -14,9 +10,9 @@ export const DragSourceBox = ({
 }) => {
   const [forbidDrag, setForbidDrag] = useState(!draggable)
 
-  const [{ isDragging }, drag] = useDrag({
+  const [{isDragging}, drag] = useDrag({
     item: {
-      type: `${color}`,
+      type: `${element}`,
     },
     canDrag: !forbidDrag,
     collect: (monitor) => ({
@@ -29,7 +25,7 @@ export const DragSourceBox = ({
   }, [forbidDrag])
 
   // const backgroundColor = useMemo(() => {
-  //   switch (color) {
+  //   switch (element) {
   //     case Colors.YELLOW:
   //       return 'lightgoldenrodyellow'
   //     case Colors.BLUE:
@@ -37,7 +33,7 @@ export const DragSourceBox = ({
   //     default:
   //       return 'lightgoldenrodyellow'
   //   }
-  // }, [color])
+  // }, [element])
 
   const containerStyle = useMemo(
     () => ({
@@ -46,7 +42,7 @@ export const DragSourceBox = ({
       opacity: isDragging ? 0.4 : 1,
       cursor: forbidDrag ? 'default' : 'move',
     }),
-    [isDragging, forbidDrag]
+    [isDragging, forbidDrag],
   )
 
   return (
@@ -56,8 +52,7 @@ export const DragSourceBox = ({
       className={('droppable-element', className)}
       draggable={true}
       unselectable="on"
-      onDragStart={(e) => e.dataTransfer.setData('text/plain', '')}
-    >
+      onDragStart={(e) => e.dataTransfer.setData('text/plain', '')}>
       {showForbid && (
         <input
           type="checkbox"
@@ -65,7 +60,7 @@ export const DragSourceBox = ({
           onChange={onToggleForbidDrag}
         />
       )}
-      {/* <small>{`Forbid ${color} drag`}</small> */}
+      {/* <small>{`Forbid ${element} drag`}</small> */}
       {children}
     </div>
   )

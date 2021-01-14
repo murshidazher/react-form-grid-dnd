@@ -4,7 +4,12 @@ import {
 
 const selectMapper = (state) => state.mapper
 
-export const selectMapperSections = createSelector(
+export const selectMapperElements = createSelector(
   [selectMapper],
-  (mapper) => mapper
+  (mapper) => mapper.elements
+)
+
+export const selectMapperTypes = createSelector(
+  [selectMapper],
+  (mapper) => mapper.types
 )

@@ -12,7 +12,7 @@ import {Responsive, WidthProvider} from 'react-grid-layout'
 import produce from 'immer'
 const ResponsiveReactGridLayout = WidthProvider(Responsive)
 import {getKeyByValue} from '../../utils/object'
-import {useDrop} from 'react-dnd'
+import {formatISO} from '../../utils/date'
 import {FormElements} from '../FormElements'
 
 import merge from 'lodash/merge'
@@ -22,18 +22,9 @@ import utils from '../common/form/utils'
 import {connect} from 'react-redux'
 import {createStructuredSelector} from 'reselect'
 
-import {selectMapperSections} from '../../redux/mapper/mapper.selectors'
+import {selectMapperElements} from '../../redux/mapper/mapper.selectors'
 
 import StatefulDrop from '../stateful-drop/stateful-drop.hoc'
-
-const formatDate = (date) => {
-  let value =
-    (date && typeof date === 'object' && date.toISOString().slice(0, 10)) ||
-    date
-  if (!value) value = ''
-  if (value.length > 0) value = new Date(value).toISOString().slice(0, 10)
-  return value
-}
 
 const MyGrid = memo(
   ({
@@ -192,7 +183,7 @@ const MyGrid = memo(
         getLocalizedDate:
           localization && localization.getLocalizedDate
             ? localization.getLocalizedDate
-            : formatDate,
+            : formatISO,
       }
     }
 
@@ -469,7 +460,7 @@ LayoutBuilder.defaultProps = {
 }
 
 const mapStateToProps = createStructuredSelector({
-  mapper: selectMapperSections,
+  mapper: selectMapperElements,
 })
 
 export default connect(mapStateToProps)(LayoutBuilder)

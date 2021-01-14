@@ -40,26 +40,29 @@ class Text extends React.Component<Props> {
 
     // console.log('text', this.props)
     return (
-      <TextField
-        key={form.key}
-        type={form.type}
-        label={form.title && getLocalizedString(form.title)}
-        placeholder={form.placeholder && getLocalizedString(form.placeholder)}
-        helperText={
-          (error || form.description) &&
-          getLocalizedString(error || form.description)
-        }
-        data-grid={form.data}
-        error={!!error}
-        onChange={onChangeValidate}
-        value={value || ''}
-        disabled={form.readonly || disabled}
-        fullWidth
-        required={form.required}
-        style={form.style}
-        {...otherProps}
-        {...form.otherProps}
-      />
+      <>
+        <TextField
+          key={form.key}
+          type={form.type}
+          label={form.title && getLocalizedString(form.title)}
+          placeholder={form.placeholder && getLocalizedString(form.placeholder)}
+          helperText={
+            (error || form.description) &&
+            getLocalizedString(error || form.description)
+          }
+          className={'text-green -z-1'}
+          data-grid={form.data}
+          error={!!error}
+          onChange={onChangeValidate}
+          value={value || ''}
+          disabled={form.readonly || disabled}
+          fullWidth
+          required={form.required}
+          style={form.style}
+          {...otherProps}
+          {...form.otherProps}
+        />
+      </>
     )
   }
 }
