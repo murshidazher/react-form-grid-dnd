@@ -24,42 +24,7 @@ import {createStructuredSelector} from 'reselect'
 
 import {selectMapperSections} from '../../redux/mapper/mapper.selectors'
 
-// export default One
-const withStatefulDrop = (BaseComponent) => (props) => {
-  const [lastDroppedColor, setLastDroppedColor] = useState(null)
-  const onDrop = useCallback((color) => setLastDroppedColor(color), [])
-
-  const [{isOver, draggingColor, canDrop}, drop] = useDrop({
-    accept: [FormElements.markdown, FormElements.text],
-    drop(item) {
-      onDrop(item.type)
-      return undefined
-    },
-    collect: (monitor) => ({
-      isOver: monitor.isOver(),
-      canDrop: monitor.canDrop(),
-      draggingColor: monitor.getItemType(),
-    }),
-  })
-
-  return (
-    <div ref={drop}>
-      <p>Drop here : {lastDroppedColor}.</p>
-
-      {!canDrop && lastDroppedColor && (
-        <p>Last dropped item: {lastDroppedColor}</p>
-      )}
-      <BaseComponent {...props} droppedType={lastDroppedColor} />
-    </div>
-  )
-}
-
-// const initialUISchema = {
-//   form_element1: {
-//     type: 'text',
-//     'ui:autofocus': true,
-//   },
-// }
+import StatefulDrop from '../stateful-drop/stateful-drop.hoc'
 
 const formatDate = (date) => {
   let value =
@@ -485,7 +450,7 @@ const onSelectChange = async ({target: {value}}) => {
   }
 }
 
-const LayoutBuilder = withStatefulDrop(MyGrid)
+const LayoutBuilder = StatefulDrop(MyGrid)
 
 LayoutBuilder.propTypes = {
   onLayoutChange: PropTypes.func.isRequired,

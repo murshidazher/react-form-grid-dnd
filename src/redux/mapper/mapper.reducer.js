@@ -17,6 +17,8 @@ import {
   Taxonomy
 } from "../../components/common/form";
 
+
+
 const INITIAL_STATE = {
   number: Number,
   text: Text,

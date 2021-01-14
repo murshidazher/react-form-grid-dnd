@@ -8,9 +8,17 @@
 
 - [react-form-grid-dnd](#react-form-grid-dnd)
   - [Table of Contents](#table-of-contents)
+  - [Structure](#structure)
   - [TODO](#todo)
   - [Tools](#tools)
   - [License](#license)
+
+
+## Structure
+
+All components that listen to Redux store changes should go in the `/containers` directory. All others belong in the `/components` directory.
+
+`/helpers` contains `hoc`.
 
 ## TODO
 
