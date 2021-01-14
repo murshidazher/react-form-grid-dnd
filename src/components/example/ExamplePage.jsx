@@ -2,10 +2,6 @@
 import React from 'react'
 import SchemaForm from '../common/form/SchemaForm'
 import utils from '../common/form/utils'
-import AceEditor from 'react-ace'
-import 'ace-builds/webpack-resolver'
-import 'ace-builds/src-noconflict/mode-json'
-import 'ace-builds/src-noconflict/theme-github'
 import {
   Button,
   FormControl,

@@ -1,16 +1,13 @@
 import React from 'react'
-import LayoutGridBuilder from './components/layout-grid-builder/layout-grid-builder.component'
-import { DndProvider } from 'react-dnd'
-import { HTML5Backend } from 'react-dnd-html5-backend'
-import ExamplePage from './components/example/ExamplePage'
+import Dashboard from './pages/dashboard/dashboard.component'
 
-const App = (props) => (
-  <DndProvider backend={HTML5Backend}>
-    <div>
-      <LayoutGridBuilder />
-      {/* <ExamplePage /> */}
-    </div>
-  </DndProvider>
-)
+import {connect} from 'react-redux'
+import {createStructuredSelector} from 'reselect'
 
-export default App
+const App = (props) => <Dashboard />
+
+const mapStateToProps = createStructuredSelector({})
+
+const mapDispatchToProps = (dispatch) => ({})
+
+export default connect(mapStateToProps, mapDispatchToProps)(App)

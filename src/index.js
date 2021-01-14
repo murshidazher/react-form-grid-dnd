@@ -1,11 +1,23 @@
-import React from "react";
-import ReactDOM from "react-dom";
+import React from 'react'
+import ReactDOM from 'react-dom'
+import {BrowserRouter} from 'react-router-dom'
 
-import App from './App';
-import "../node_modules/react-resizable/css/styles.css";
-import "./index.scss";
+import {Provider} from 'react-redux'
+import {PersistGate} from 'redux-persist/integration/react' // specific for react
 
-ReactDOM.render( <
-  App / > ,
-  document.getElementById("root")
-);
+import {store, persistor} from './redux/store'
+
+import './index.scss'
+import App from './App'
+import '../node_modules/react-resizable/css/styles.css'
+
+ReactDOM.render(
+  <Provider store={store}>
+    <BrowserRouter>
+      <PersistGate persistor={persistor}>
+        <App />
+      </PersistGate>
+    </BrowserRouter>
+  </Provider>,
+  document.getElementById('root'),
+)
