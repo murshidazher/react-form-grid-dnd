@@ -1,6 +1,5 @@
 import React, {useState, useCallback} from 'react'
 import {useDrop} from 'react-dnd'
-import {FormElements} from '../FormElements'
 
 import {connect} from 'react-redux'
 import {createStructuredSelector} from 'reselect'

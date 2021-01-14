@@ -13,7 +13,6 @@ import produce from 'immer'
 const ResponsiveReactGridLayout = WidthProvider(Responsive)
 import {getKeyByValue} from '../../utils/object'
 import {formatISO} from '../../utils/date'
-import {FormElements} from '../FormElements'
 import axios from 'axios'
 
 import merge from 'lodash/merge'
@@ -23,7 +22,10 @@ import utils from '../common/form/utils'
 import {connect} from 'react-redux'
 import {createStructuredSelector} from 'reselect'
 
-import {selectMapperElements} from '../../redux/mapper/mapper.selectors'
+import {
+  selectMapperElements,
+  selectMapperTypes,
+} from '../../redux/mapper/mapper.selectors'
 
 import StatefulDrop from '../stateful-drop/stateful-drop.hoc'
 
@@ -36,6 +38,7 @@ const MyGrid = memo(
     handleFieldSelect,
     droppedType,
     initialSchema,
+    MapperTypes,
     initialForm,
     mapper,
     ignore,
@@ -319,7 +322,7 @@ const MyGrid = memo(
         <div>
           <div className="div">
             Dropped Type: {droppedType}{' '}
-            {getKeyByValue(FormElements, droppedType)}
+            {getKeyByValue(MapperTypes, droppedType)}
           </div>
           Current Breakpoint: {currentBreakpoint} (
           {rest.cols[currentBreakpoint]} columns)
@@ -436,6 +439,7 @@ LayoutBuilder.defaultProps = {
 
 const mapStateToProps = createStructuredSelector({
   mapper: selectMapperElements,
+  MapperTypes: selectMapperTypes,
 })
 
 export default connect(mapStateToProps)(LayoutBuilder)
