@@ -2,8 +2,6 @@ import ShopActionTypes from './shop.types';
 
 const INITIAL_STATE = {
   model: {},
-  schema: {},
-  errorMessage: undefined
 };
 
 const shopReducer = (state = INITIAL_STATE, action) => {

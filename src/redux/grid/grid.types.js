@@ -1,0 +1,9 @@
+const GridActionTypes = {
+    ADD_SCHEMA: 'ADD_SCHEMA',
+    REMOVE_SCHEMA: 'REMOVE_SCHEMA',
+    CLEAR_SCHEMA: 'CLEAR_SCHEMA',
+    SELECT_ITEM: 'SELECT_ITEM',
+    LAYOUT_CHANGE: 'LAYOUT_CHANGE',
+}
+
+export default GridActionTypes

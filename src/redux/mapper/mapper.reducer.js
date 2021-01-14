@@ -42,7 +42,7 @@ const INITIAL_STATE = {
   },
   types: {
     number: 'Number',
-    text: 'Text',
+    text: 'Textbox',
     password: 'Text',
     textarea: 'TextArea',
     markdown: 'Markdown',

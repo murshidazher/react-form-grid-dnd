@@ -14,6 +14,7 @@ const ResponsiveReactGridLayout = WidthProvider(Responsive)
 import {getKeyByValue} from '../../utils/object'
 import {formatISO} from '../../utils/date'
 import {FormElements} from '../FormElements'
+import axios from 'axios'
 
 import merge from 'lodash/merge'
 import isNil from 'lodash/isNil'
@@ -73,6 +74,11 @@ const MyGrid = memo(
     }
 
     const setValues = async () => {
+      axios.get('data/login.json').then((res) => {
+        const data = res.data
+        console.log('data', data)
+      })
+
       onSelectChange({
         target: {value: 'data/login.json'},
       }).then((res) => {
@@ -117,14 +123,6 @@ const MyGrid = memo(
 
     const onLayoutChange = (layout) => {
       handleLayoutChange(layout)
-    }
-
-    const onNewLayout = () => {
-      setLayouts(
-        produce((prev) => {
-          prev[currentBreakpoint] = generateLayout()
-        }),
-      )
     }
 
     const onDrop = (layout, item, event) => {
@@ -329,7 +327,6 @@ const MyGrid = memo(
         <div>
           Compaction type: {_.capitalize(compactType) || 'No Compaction'}
         </div>
-        <button onClick={onNewLayout}>Generate New Layout</button>
         <button onClick={onCompactTypeChange}>Change Compaction Type</button>
         <ResponsiveReactGridLayout
           {...rest}
@@ -352,6 +349,7 @@ const MyGrid = memo(
             static: false,
             isBounded: true,
             isDroppable: true,
+            static: false,
             resizeHandles: ['s', 'n'],
             field: 'text',
           }}
@@ -362,29 +360,6 @@ const MyGrid = memo(
     )
   },
 )
-
-function generateLayout() {
-  return _.map(_.range(0, 1), function (item, i) {
-    var y = Math.ceil(Math.random() * 4) + 1
-    return {
-      // x: (_.random(0, 5) * 2) % 12,
-      x: 0,
-      y: Math.floor(i / 6) * y,
-      w: 6,
-      h: y,
-      i: i.toString(),
-      // static: Math.random() < 0.05,
-      static: false,
-      resizeHandles: ['s', 'n'],
-      isBounded: true,
-      isDroppable: true,
-      // minW: ?number = 0,
-      // maxW: ?number = Infinity,
-      minH: 2,
-      // maxH: Infinity,
-    }
-  })
-}
 
 const onSelectChange = async ({target: {value}}) => {
   let temp = {}
