@@ -18,8 +18,6 @@
 
 All components that listen to Redux store changes should go in the `/containers` directory. All others belong in the `/components` directory.
 
-`/helpers` contains `hoc`.
-
 ## TODO
 
 - [ ] Look for all demos in [STRML/react-grid-layout](https://github.com/STRML/react-grid-layout#demos)

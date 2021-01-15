@@ -13,7 +13,6 @@ import produce from 'immer'
 const ResponsiveReactGridLayout = WidthProvider(Responsive)
 import {getKeyByValue} from '../../utils/object'
 import {formatISO} from '../../utils/date'
-import axios from 'axios'
 
 import merge from 'lodash/merge'
 import isNil from 'lodash/isNil'
@@ -27,13 +26,16 @@ import {
   selectMapperTypes,
 } from '../../redux/mapper/mapper.selectors'
 
+import {selectGridConfig} from '../../redux/grid/grid.selectors'
+import {setBreakpoint, setCompactType} from '../../redux/grid/grid.actions'
+
 import StatefulDrop from '../stateful-drop/stateful-drop.hoc'
 
 const CustomGrid = memo(
   ({
+    config,
+    dispatch,
     initialLayout,
-    initialBreakpoint = 'sm',
-    initialCompactType = 'vertical',
     handleLayoutChange,
     handleFieldSelect,
     droppedType,
@@ -45,15 +47,10 @@ const CustomGrid = memo(
     option,
     initialModel,
     localization,
-    showErrors,
     evalContext,
     errors,
     ...rest
   }) => {
-    const [currentBreakpoint, setCurrentBreakpoint] = useState(
-      initialBreakpoint,
-    )
-    const [compactType, setCompactType] = useState(initialCompactType)
     const [layouts, setLayouts] = useState({}) // {sm: initialLayout}
     const [layoutLength, setLayoutLength] = useState(initialLayout.length)
     const mounted = useRef(true) // component mounted or not
@@ -62,7 +59,7 @@ const CustomGrid = memo(
     const [model, setModel] = useState(initialModel) //how it looks
 
     useEffect(() => {
-      console.log('use Effect called')
+      // console.log('use Effect called')
       setValues()
 
       return () => {
@@ -77,11 +74,6 @@ const CustomGrid = memo(
     }
 
     const setValues = async () => {
-      axios.get('data/login.json').then((res) => {
-        const data = res.data
-        console.log('data', data)
-      })
-
       onSelectChange({
         target: {value: 'data/login.json'},
       }).then((res) => {
@@ -89,7 +81,7 @@ const CustomGrid = memo(
         setSchema(res['initialSchema'])
         setForm(res['initialForm'])
         setLayoutLength(res['initialLayout']['sm'].length)
-        mapper = res['mapper']
+        // mapper = res['mapper']
         setModel(res['model'])
       })
     }
@@ -99,29 +91,29 @@ const CustomGrid = memo(
       //console.log('before', layouts)
       setLayouts(
         produce((prev) => {
-          prev[currentBreakpoint].splice(i, 1)
+          prev[config.breakpoint].splice(i, 1)
         }),
       )
       //console.log('after', layouts)
       setLayoutLength(layoutLength - 1)
     }
 
-    const onBreakpointChange = (breakpoint) => setCurrentBreakpoint(breakpoint)
+    const onBreakpointChange = (breakpoint) =>
+      dispatch(setBreakpoint(breakpoint))
 
     const onFieldSelect = (form, key) => {
-      console.log('ddfdfsfadfds')
       handleFieldSelect(form, key)
     }
 
     const onCompactTypeChange = () => {
       const newCompactType =
-        compactType === 'horizontal'
+        config.compactType === 'horizontal'
           ? 'vertical'
-          : compactType === 'vertical'
+          : config.compactType === 'vertical'
           ? null
           : 'horizontal'
 
-      setCompactType(newCompactType)
+      dispatch(setBreakpoint(newCompactType))
     }
 
     const onLayoutChange = (layout) => {
@@ -132,13 +124,13 @@ const CustomGrid = memo(
       // event.preventDefault()
       // console.log('layout', layout)
 
-      const newLayout = layouts[currentBreakpoint]
+      const newLayout = layouts[config.breakpoint]
       newLayout[0].y = layout[0].y
       newLayout[0].x = layout[0].x
       newLayout[1] = layout[1]
       setLayouts(
         produce((prev) => {
-          prev[currentBreakpoint] = newLayout
+          prev[config.breakpoint] = newLayout
         }),
       )
       setLayoutLength(layoutLength + 1)
@@ -189,7 +181,7 @@ const CustomGrid = memo(
     }
 
     const builder = (form, model, index, mapper, onChange, builder) => {
-      console.log('inside builder schemeForm')
+      // console.log('inside builder schemeForm')
       const Field = mapper[form.type]
       if (!Field) {
         return null
@@ -211,10 +203,11 @@ const CustomGrid = memo(
 
       const error = errors && key in errors ? errors[key] : null
 
-      console.log('the key is ', key)
+      // console.log('the key is ', key)
 
-      const idx = utils.getIndexFromLayout(layouts[currentBreakpoint], key)
-      const grid = layouts[currentBreakpoint][idx]
+      const idx = utils.getIndexFromLayout(layouts[config.breakpoint], key)
+      const grid = layouts[config.breakpoint][idx]
+      // console.log('localizaton', getLocalization())
       return (
         <div
           key={idx}
@@ -232,7 +225,7 @@ const CustomGrid = memo(
             builder={builder}
             errorText={error}
             localization={getLocalization()}
-            showErrors={showErrors}
+            showErrors={config.showErrors}
             disabled
           />
           <span className="remove btn-remove" onClick={() => onRemoveItem(key)}>
@@ -246,12 +239,17 @@ const CustomGrid = memo(
       if (form) {
         const merged = utils.merge(schema, form, ignore, option, null)
 
+        console.log()
+        console.log('merged', merged)
+
         let mergedMapper = mapper
         if (mapper) {
           mergedMapper = merge(mapper, mapper)
         }
 
         return merged.map((formPart, index) => {
+          console.log('formPart', formPart)
+          console.log('index', index)
           return builder(
             formPart,
             model,
@@ -266,7 +264,7 @@ const CustomGrid = memo(
 
     // const generateChildren = useMemo(() => {
     //   console.log('children generate', layouts)
-    //   return _.orderBy(layouts[currentBreakpoint], ['y'], ['asc']).map(
+    //   return _.orderBy(layouts[config.breakpoint], ['y'], ['asc']).map(
     //     (l, i) => {
     //       console.log('data-grid', l)
     //       return (
@@ -318,17 +316,17 @@ const CustomGrid = memo(
 
     return (
       <>
-        {console.log('renddder')}
+        {/* {console.log('renddder')} */}
         <div>
           <div className="div">
             Dropped Type: {droppedType}{' '}
-            {getKeyByValue(MapperTypes, droppedType)}
+            {/* {getKeyByValue(MapperTypes, droppedType)} */}
           </div>
-          Current Breakpoint: {currentBreakpoint} (
-          {rest.cols[currentBreakpoint]} columns)
+          Current Breakpoint: {config.breakpoint} (
+          {rest.cols[config.breakpoint]} columns)
         </div>
         <div>
-          Compaction type: {_.capitalize(compactType) || 'No Compaction'}
+          Compaction type: {_.capitalize(config.compactType) || 'No Compaction'}
         </div>
         <button onClick={onCompactTypeChange}>Change Compaction Type</button>
         <ResponsiveReactGridLayout
@@ -338,8 +336,8 @@ const CustomGrid = memo(
           onLayoutChange={handleLayoutChange}
           measureBeforeMount={true}
           useCSSTransforms={mounted.current}
-          compactType={compactType}
-          preventCollision={!compactType}
+          compactType={config.compactType}
+          preventCollision={!config.compactType}
           isBounded={true}
           isDroppable={true}
           resizeHandles={['se', 'ne']}
@@ -376,7 +374,6 @@ const onSelectChange = async ({target: {value}}) => {
       initialLayout: {},
       model: {},
       initialForm: [],
-      showErrors: false,
     }
 
     return temp
@@ -394,7 +391,6 @@ const onSelectChange = async ({target: {value}}) => {
       initialLayout: elem.layout,
       initialForm: elem.form,
       localization: elem.localization,
-      showErrors: false,
     }
 
     return temp
@@ -411,7 +407,6 @@ const onSelectChange = async ({target: {value}}) => {
           initialLayout: layout,
           model: model || {},
           initialForm: form,
-          showErrors: false,
         }
 
         return temp
@@ -428,8 +423,6 @@ LayoutBuilder.propTypes = {
 LayoutBuilder.defaultProps = {
   className: 'layout',
   rowHeight: 30,
-  initialBreakpoint: 'sm',
-  compactType: 'vertical',
   onLayoutChange: function () {},
   cols: {lg: 12, md: 10, sm: 6, xs: 4, xxs: 2},
   initialLayout: {},
@@ -440,6 +433,7 @@ LayoutBuilder.defaultProps = {
 const mapStateToProps = createStructuredSelector({
   mapper: selectMapperElements,
   MapperTypes: selectMapperTypes,
+  config: selectGridConfig,
 })
 
 export default connect(mapStateToProps)(LayoutBuilder)

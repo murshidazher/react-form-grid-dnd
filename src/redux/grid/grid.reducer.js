@@ -1,6 +1,6 @@
+import GridActionTypes from './grid.types'
+
 const INITIAL_STATE = {
-  selected: 'data/login.json',
-  className: 'layout',
   rowHeight: 30,
   breakpoint: 'sm',
   compactType: 'vertical',
@@ -10,7 +10,7 @@ const INITIAL_STATE = {
     md: 10,
     sm: 6,
     xs: 4,
-    xxs: 2
+    xxs: 2,
   },
   localization: undefined,
   showErrors: false,
@@ -18,6 +18,31 @@ const INITIAL_STATE = {
 
 const gridReducer = (state = INITIAL_STATE, action) => {
   switch (action.type) {
+    case GridActionTypes.TOGGLE_SHOW_ERRORS:
+      return {
+        ...state,
+        showErrors: !state.showErrors,
+      }
+    case GridActionTypes.SET_ROW_HEIGHT:
+      return {
+        ...state,
+        rowHeight: action.payload,
+      }
+    case GridActionTypes.SET_BREAKPOINT:
+      return {
+        ...state,
+        breakpoint: action.payload,
+      }
+    case GridActionTypes.SET_COMPACT_TYPE:
+      return {
+        ...state,
+        compactType: action.payload,
+      }
+    case GridActionTypes.SET_COL_BREAKPOINTS:
+      return {
+        ...state,
+        cols: action.payload,
+      }
     default:
       return state
   }

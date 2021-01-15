@@ -1,10 +1,15 @@
-import React, { useState, useEffect } from 'react'
+import React, {useState, useEffect} from 'react'
 import './schema-viewer.styles.scss'
 import Icon from 'react-hero-icon'
 import _ from 'lodash'
 import clsx from 'clsx'
 import Input from '../common/input.component'
-import { insertSpaces } from '../../utils/capitalize'
+import {insertSpaces} from '../../utils/capitalize'
+
+import {connect} from 'react-redux'
+import {createStructuredSelector} from 'reselect'
+
+import {selectFormElementProperties} from '../../redux/form/form.selectors'
 
 // what form to generate
 // key should be unique because its mapped to the properties name
@@ -52,12 +57,13 @@ const initialSchema = {
   required: ['name', 'email', 'comment'],
 }
 
-const SchemaViewer = ({ form, fieldKey }) => {
-  // const [schema, setSchema] = useState(initialSchema)
+const SchemaViewer = ({fieldKey, getElement}) => {
+  const [form, setForm] = useState({})
   const [schemaElements, setSchemaElements] = useState([])
 
   useEffect(() => {
     if (fieldKey.length > 0) {
+      setForm(getElement(fieldKey))
       generateSchemaForm()
     }
   }, [form, fieldKey])
@@ -96,13 +102,16 @@ const SchemaViewer = ({ form, fieldKey }) => {
         'mt-4 text-black px-4',
         {
           // 'rounded-full': corner === 'rounded-full',
-        }
+        },
         // className
-      )}
-    >
+      )}>
       <div key={fieldKey}>{schemaElements}</div>
     </div>
   )
 }
 
-export default SchemaViewer
+const mapStateToProps = (state, ownProps) => ({
+  getElement: (key) => selectFormElementProperties(key)(state),
+})
+
+export default connect(mapStateToProps)(SchemaViewer)

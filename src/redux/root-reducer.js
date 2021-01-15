@@ -6,17 +6,22 @@ import {persistReducer} from 'redux-persist'
 import storage from 'redux-persist/lib/storage'
 
 import mapperReducer from './mapper/mapper.reducer'
+import gridReducer from './grid/grid.reducer'
+import formReducer from './form/form.reducer'
 
 const persistConfig = {
   key: 'root', // we need to store from the root
   storage,
-  blacklist: ['mapper'],
+  blacklist: ['mapper', 'form'],
+  whitelist: ['grid'],
 }
 
 // this return a giant object by combining all the slices
 // keys are the slice of the redux store
 const rootReducer = combineReducers({
   mapper: mapperReducer,
+  grid: gridReducer,
+  form: formReducer,
 })
 
 export default persistReducer(persistConfig, rootReducer)

@@ -1,15 +1,10 @@
-import {
-  createSelector
-} from 'reselect'
+import {createSelector} from 'reselect'
 
 const selectGrid = (state) => state.grid
 
-export const selectGridElements = createSelector(
-  [selectGrid],
-  (grid) => grid.elements
-)
+export const selectGridConfig = createSelector([selectGrid], (grid) => grid)
 
-export const selectGridTypes = createSelector(
-  [selectGrid],
-  (grid) => grid.types
+export const selectGridBreakpoint = createSelector(
+  [selectGridConfig],
+  (grid) => grid.breakpoint,
 )

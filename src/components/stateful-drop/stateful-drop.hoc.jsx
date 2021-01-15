@@ -12,7 +12,7 @@ const StatefulDrop = (WrappedComponent) => {
     const onDrop = useCallback((color) => setLastDroppedColor(color), [])
 
     const [{isOver, draggingColor, canDrop}, drop] = useDrop({
-      accept: [MapperTypes.markdown, MapperTypes.text],
+      accept: [MapperTypes.Textbox, MapperTypes.Markdown],
       drop(item) {
         onDrop(item.type)
         return undefined

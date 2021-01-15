@@ -14,10 +14,8 @@ import {
   Array,
   FieldSet,
   TripleBoolean,
-  Taxonomy
-} from "../../components/common/form";
-
-
+  Taxonomy,
+} from '../../components/common/form'
 
 const INITIAL_STATE = {
   elements: {
@@ -41,27 +39,26 @@ const INITIAL_STATE = {
     multiselect: MultiSelect,
   },
   types: {
-    number: 'Number',
-    text: 'Textbox',
-    password: 'Text',
-    textarea: 'TextArea',
-    markdown: 'Markdown',
-    textsuggest: 'TextSuggest',
-    select: 'Select',
-    taxonomy: 'Taxonomy',
-    radios: 'Radios',
-    date: 'DateComponent',
-    timestamp: 'Timestamp',
-    checkbox: 'Checkbox',
-    help: 'Help',
-    array: 'Array',
-    tBoolean: 'TripleBoolean',
-    fieldset: 'FieldSet',
-    tuple: 'FieldSet',
-    multiselect: 'MultiSelect'
-  }
+    Number: 'number',
+    Textbox: 'text',
+    Password: 'password',
+    TextArea: 'textarea',
+    Markdown: 'markdown',
+    TextSuggest: 'textsuggest',
+    Select: 'select',
+    Taxonomy: 'taxonomy',
+    Radios: 'radios',
+    DateComponent: 'date',
+    Timestamp: 'timestamp',
+    Checkbox: 'checkbox',
+    Help: 'help',
+    Array: 'array',
+    TripleBoolean: 'tBoolean',
+    FieldSet: 'fieldset',
+    Tuple: 'tuple',
+    MultiSelect: 'multiselect',
+  },
 }
-
 
 const mapperReducer = (state = INITIAL_STATE, action) => {
   switch (action.type) {

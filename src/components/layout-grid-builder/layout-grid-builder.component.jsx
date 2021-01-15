@@ -1,54 +1,56 @@
-import React, { useState, useEffect } from 'react'
+import React, {useState, useEffect, useMemo} from 'react'
 import LayoutBuilder from '../layout-builder/layout-builder.component'
 import FormBuilder from '../form-builder/form-builder.component'
 import SchemaViewer from '../schema-viewer/schema-viewer.component'
 
-const LayoutGridBuilder = () => {
-  // const [tests, setTests] = useState(
-  //   [
-  //     {
-  //       label: 'Login',
-  //       value: 'data/login.json',
-  //     },
-  //   ]
-  // )
+import {connect} from 'react-redux'
+import {createStructuredSelector} from 'reselect'
 
-  // const [validationResult, setValidationResult] = useState({})
-  // const [schema, setSchema] = useState({})
-  // const [form, setForm] = useState([])
-  const [layout, setLayout] = useState({})
-  const [form, setForm] = useState({})
-  const [fieldKey, setFieldKey] = useState('')
-  // const [model, setModel] = useState({})
-  // const [model, setModel] = useState({})
-  // const [model, setModel] = useState({})
-  // const [model, setModel] = useState({})
+import {
+  selectFormLayouts,
+  selectFormDefault,
+  selectFormCurrentLayout,
+} from '../../redux/form/form.selectors'
+import {
+  selectGridConfig,
+  selectGridBreakpoint,
+} from '../../redux/grid/grid.selectors'
 
-  const onLayoutChange = (layout) => {
-    setLayout(layout)
+const LayoutGridBuilder = ({config, layouts, form}) => {
+  const [fieldKey, setFieldKey] = useState('password')
+
+  const onLayoutChange = (layouts) => {
+    // setLayout(layouts)
   }
 
   const onFieldSelect = (form, key) => {
+    console.log('fieldKey', key)
     setFieldKey(key)
-    setForm(form)
+    // setForm(form)
   }
 
-  const stringifyLayout = () => {
-    return layout.map((l) => {
-      return (
-        <div className="layoutItem" key={l.i}>
-          <b>{l.i}</b>: [{l.x}, {l.y}, {l.w}, {l.h}, {}]
-        </div>
-      )
-    })
-  }
+  useEffect(() => {}, [layouts])
+
+  const stringifyLayout = useMemo(() => {
+    console.log('stringifyLayout', layouts.length)
+    if (!!layouts[config.breakpoint]) {
+      return layouts[config.breakpoint].map((l) => {
+        return (
+          <div className="layoutItem" key={l.i}>
+            <b>{l.i}</b>: [{l.x}, {l.y}, {l.w}, {l.h}, {}]
+          </div>
+        )
+      })
+    }
+  }, [layouts])
 
   return (
     <>
+      {console.log('asadasdas', config)}
       <div className="text-black font-sans">
         <div className="layoutJSON">
           Displayed as <code>[x, y, w, h]</code>:
-          {/* <div className="columns">{stringifyLayout()}</div> */}
+          <div className="columns">{stringifyLayout}</div>
         </div>
         <div className="">
           <div className="wrapper flex">
@@ -63,7 +65,7 @@ const LayoutGridBuilder = () => {
               />
             </div>
             <div className="bg-white shadow-md">
-              <SchemaViewer form={form} fieldKey={fieldKey} />
+              {/* <SchemaViewer form={form} fieldKey={fieldKey} /> */}
             </div>
           </div>
         </div>
@@ -72,7 +74,13 @@ const LayoutGridBuilder = () => {
   )
 }
 
-export default LayoutGridBuilder
+const mapStateToProps = createStructuredSelector({
+  config: selectGridConfig,
+  layouts: selectFormLayouts,
+  form: selectFormDefault,
+})
+
+export default connect(mapStateToProps)(LayoutGridBuilder)
 
 // const contentDiv = document.getElementById("root");
 // const gridProps = window.gridProps || {};
