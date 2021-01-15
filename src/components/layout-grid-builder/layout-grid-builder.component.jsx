@@ -3,24 +3,28 @@ import LayoutBuilder from '../layout-builder/layout-builder.component'
 import FormBuilder from '../form-builder/form-builder.component'
 import SchemaViewer from '../schema-viewer/schema-viewer.component'
 
+import {isEmpty} from '../../utils/object'
+
 import {connect} from 'react-redux'
 import {createStructuredSelector} from 'reselect'
 
 import {
   selectFormLayouts,
   selectFormDefault,
-  selectFormCurrentLayout,
+  selectFormModel,
+  selectFormSchema,
 } from '../../redux/form/form.selectors'
 import {
   selectGridConfig,
   selectGridBreakpoint,
 } from '../../redux/grid/grid.selectors'
 
-const LayoutGridBuilder = ({config, layouts, form}) => {
+const LayoutGridBuilder = ({config, layouts, form, schema, model}) => {
   const [formPart, setFormPart] = useState({})
   const [fieldKey, setFieldKey] = useState('')
 
   const onLayoutChange = (layouts) => {
+    console.log('Layoutchanged', layouts)
     // setLayout(layouts)
   }
 
@@ -48,7 +52,7 @@ const LayoutGridBuilder = ({config, layouts, form}) => {
   return (
     <>
       {console.log('asadasdas', config)}
-      <div className="text-black font-sans">
+      <div className="text-black font-sans ">
         <div className="layoutJSON">
           Displayed as <code>[x, y, w, h]</code>:
           <div className="columns">{stringifyLayout}</div>
@@ -59,11 +63,17 @@ const LayoutGridBuilder = ({config, layouts, form}) => {
               <div className="px-1 text-sm font-semibold mb-2 mt-2">Fields</div>
               <FormBuilder />
             </div>
-            <div className="bg-backgroundLightest shadow-md">
-              <LayoutBuilder
-                handleLayoutChange={onLayoutChange}
-                handleFieldSelect={onFieldSelect}
-              />
+            <div className="bg-backgroundLightest shadow-md p-4">
+              {!isEmpty(layouts) && !isEmpty(schema) && (
+                <LayoutBuilder
+                  handleLayoutChange={onLayoutChange}
+                  handleFieldSelect={onFieldSelect}
+                  initialLayout={layouts}
+                  initialSchema={schema}
+                  initialForm={form}
+                  initialModel={model}
+                />
+              )}
             </div>
             <div className="bg-white shadow-md">
               <SchemaViewer form={formPart} fieldKey={fieldKey} />
@@ -78,6 +88,8 @@ const LayoutGridBuilder = ({config, layouts, form}) => {
 const mapStateToProps = createStructuredSelector({
   config: selectGridConfig,
   layouts: selectFormLayouts,
+  schema: selectFormSchema,
+  model: selectFormModel,
   form: selectFormDefault,
 })
 

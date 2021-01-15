@@ -13,6 +13,7 @@ import produce from 'immer'
 const ResponsiveReactGridLayout = WidthProvider(Responsive)
 import {getKeyByValue} from '../../utils/object'
 import {formatISO} from '../../utils/date'
+import clsx from 'clsx'
 
 import merge from 'lodash/merge'
 import isNil from 'lodash/isNil'
@@ -26,8 +27,15 @@ import {
   selectMapperTypes,
 } from '../../redux/mapper/mapper.selectors'
 
-import {selectGridConfig} from '../../redux/grid/grid.selectors'
-import {setBreakpoint, setCompactType} from '../../redux/grid/grid.actions'
+import {
+  selectGridConfig,
+  selectGridElementSelected,
+} from '../../redux/grid/grid.selectors'
+import {
+  setBreakpoint,
+  setCompactType,
+  setElementSelected,
+} from '../../redux/grid/grid.actions'
 
 import StatefulDrop from '../stateful-drop/stateful-drop.hoc'
 
@@ -49,9 +57,10 @@ const CustomGrid = memo(
     localization,
     evalContext,
     errors,
+    elemSelected,
     ...rest
   }) => {
-    const [layouts, setLayouts] = useState({}) // {sm: initialLayout}
+    const [layouts, setLayouts] = useState(initialLayout) // {sm: initialLayout}
     const [layoutLength, setLayoutLength] = useState(initialLayout.length)
     const mounted = useRef(true) // component mounted or not
     const [schema, setSchema] = useState(initialSchema) // how the layout and fields
@@ -60,7 +69,7 @@ const CustomGrid = memo(
 
     useEffect(() => {
       // console.log('use Effect called')
-      setValues()
+      // setValues()
 
       return () => {
         mounted.current = false
@@ -73,18 +82,6 @@ const CustomGrid = memo(
       setModel(newModel)
     }
 
-    const setValues = async () => {
-      onSelectChange({
-        target: {value: 'data/login.json'},
-      }).then((res) => {
-        setLayouts(res['initialLayout'])
-        setSchema(res['initialSchema'])
-        setForm(res['initialForm'])
-        setLayoutLength(res['initialLayout']['sm'].length)
-        // mapper = res['mapper']
-        setModel(res['model'])
-      })
-    }
     // remove an item
     const onRemoveItem = (i) => {
       //console.log('removing', i)
@@ -116,45 +113,51 @@ const CustomGrid = memo(
       dispatch(setBreakpoint(newCompactType))
     }
 
-    const onLayoutChange = (layout) => {
+    const onLayoutChange = (layout, item) => {
       handleLayoutChange(layout)
+      console.log('onLayoutChange', layout, item)
     }
 
     const onDrop = (layout, item, event) => {
       // event.preventDefault()
-      // console.log('layout', layout)
+      const key = item['i']
 
-      const newLayout = layouts[config.breakpoint]
-      newLayout[0].y = layout[0].y
-      newLayout[0].x = layout[0].x
-      newLayout[1] = layout[1]
+      console.log('droppedType', droppedType)
+
+      console.log('item', item)
+
       setLayouts(
         produce((prev) => {
-          prev[config.breakpoint] = newLayout
+          prev[config.breakpoint] = layout
         }),
       )
       setLayoutLength(layoutLength + 1)
 
       setForm(
         produce((prev) => {
-          prev.push('form_element0')
+          prev.push(key)
         }),
       )
 
       setSchema(
         produce((prev) => {
-          prev['properties']['form_element0'] = {
+          prev['properties'][key] = {
             title: 'Name',
             type: 'string',
             default: 'Steve',
           }
         }),
       )
+
+      dispatch(setElementSelected(key))
     }
 
     // Assign default values and save it to the model
     const setDefault = (key, model, form, value) => {
       // console.log('\t\tSchema Form - setDefault', key, model, form, value)
+
+      console.log('setDefault', key, model, form, value)
+
       const currentValue = utils.selectOrSet(key, model)
 
       // If current value is not setted and exist a default, apply the default over the model
@@ -208,13 +211,20 @@ const CustomGrid = memo(
       const idx = utils.getIndexFromLayout(layouts[config.breakpoint], key)
       const grid = layouts[config.breakpoint][idx]
       // console.log('localizaton', getLocalization())
+      console.log('assadsad', elemSelected)
+      console.log('assadsad match', elemSelected === grid.i)
       return (
         <div
-          key={idx}
-          id={key}
-          className={grid.static ? 'form-block static' : 'form-block'}
+          key={grid.i}
+          className={clsx('form-block', {
+            static: grid.static,
+            'border-selected': elemSelected === grid.i,
+          })}
           data-grid={grid}
-          onClick={() => onFieldSelect(form, key)}>
+          onClick={() => {
+            dispatch(setElementSelected(key))
+            onFieldSelect(form, key)
+          }}>
           <Field
             model={model}
             form={form}
@@ -248,8 +258,6 @@ const CustomGrid = memo(
         }
 
         return merged.map((formPart, index) => {
-          console.log('formPart', formPart)
-          console.log('index', index)
           return builder(
             formPart,
             model,
@@ -260,59 +268,7 @@ const CustomGrid = memo(
           )
         })
       }
-    }, [schema, form, layouts])
-
-    // const generateChildren = useMemo(() => {
-    //   console.log('children generate', layouts)
-    //   return _.orderBy(layouts[config.breakpoint], ['y'], ['asc']).map(
-    //     (l, i) => {
-    //       console.log('data-grid', l)
-    //       return (
-    //         <a
-    //           key={l.i}
-    //           id={l.i}
-    //           className={l.static ? 'static' : ''}
-    //           data-grid={l}
-    //           onClick={(e) => e.preventDefault()}
-    //         >
-    //           {l.static ? (
-    //             <span
-    //               className="text"
-    //               title="This item is static and cannot be removed or resized."
-    //             >
-    //               Static - {i}
-    //             </span>
-    //           ) : l.i === 'form_element1' ? (
-    //             builder(form[l.i], l.i)
-    //           ) : (
-    //             // <span className="text">
-    //             //   {l.i} - {i}
-    //             // </span>
-    //             <>
-    //               <input
-    //                 type="text"
-    //                 name="example"
-    //                 id="example"
-    //                 onSelect={() => onFieldSelect('email')}
-    //               />
-    //               {/* <TextInput /> */}
-    //               <span className="text">
-    //                 {l.i} - {i}
-    //               </span>
-    //             </>
-    //           )}
-
-    //           <span
-    //             className="remove btn-remove"
-    //             onClick={() => onRemoveItem(i)}
-    //           >
-    //             x
-    //           </span>
-    //         </a>
-    //       )
-    //     }
-    //   )
-    // }, [layouts])
+    }, [schema, form, layouts, elemSelected])
 
     return (
       <>
@@ -333,7 +289,7 @@ const CustomGrid = memo(
           {...rest}
           layouts={layouts}
           onBreakpointChange={onBreakpointChange}
-          onLayoutChange={handleLayoutChange}
+          onLayoutChange={(layout, layouts) => onLayoutChange(layout, layouts)}
           measureBeforeMount={true}
           useCSSTransforms={mounted.current}
           compactType={config.compactType}
@@ -362,58 +318,6 @@ const CustomGrid = memo(
   },
 )
 
-const onSelectChange = async ({target: {value}}) => {
-  let temp = {}
-  if (!value) {
-    temp = {
-      schemaJson: '',
-      formJson: '',
-      layoutJson: '',
-      selected: '',
-      initialSchema: {},
-      initialLayout: {},
-      model: {},
-      initialForm: [],
-    }
-
-    return temp
-  }
-
-  if (!value.endsWith('json')) {
-    const elem = examples[value]
-    temp = {
-      schemaJson: JSON.stringify(elem.schema, undefined, 2),
-      formJson: JSON.stringify(elem.form, undefined, 2),
-      layoutJson: JSON.stringify(elem.layout, undefined, 2),
-      selected: value,
-      initialSchema: elem.schema,
-      model: elem.model || {},
-      initialLayout: elem.layout,
-      initialForm: elem.form,
-      localization: elem.localization,
-    }
-
-    return temp
-  } else {
-    return fetch(value)
-      .then((x) => x.json())
-      .then(({form, schema, model, layout}) => {
-        temp = {
-          schemaJson: JSON.stringify(schema, undefined, 2),
-          formJson: JSON.stringify(form, undefined, 2),
-          layoutJson: JSON.stringify(layout, undefined, 2),
-          selected: value,
-          initialSchema: schema,
-          initialLayout: layout,
-          model: model || {},
-          initialForm: form,
-        }
-
-        return temp
-      })
-  }
-}
-
 const LayoutBuilder = StatefulDrop(CustomGrid)
 
 LayoutBuilder.propTypes = {
@@ -434,6 +338,7 @@ const mapStateToProps = createStructuredSelector({
   mapper: selectMapperElements,
   MapperTypes: selectMapperTypes,
   config: selectGridConfig,
+  elemSelected: selectGridElementSelected,
 })
 
 export default connect(mapStateToProps)(LayoutBuilder)

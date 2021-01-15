@@ -4,7 +4,7 @@ const INITIAL_STATE = {
   rowHeight: 30,
   breakpoint: 'sm',
   compactType: 'vertical',
-  onLayoutChange: () => {},
+  elemSelected: '',
   cols: {
     lg: 12,
     md: 10,
@@ -42,6 +42,11 @@ const gridReducer = (state = INITIAL_STATE, action) => {
       return {
         ...state,
         cols: action.payload,
+      }
+    case GridActionTypes.SET_ELEMENT_SELECTED:
+      return {
+        ...state,
+        elemSelected: action.payload,
       }
     default:
       return state

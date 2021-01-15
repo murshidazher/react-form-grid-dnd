@@ -459,7 +459,7 @@ const traverseForm = (form, fn) => {
   }
 }
 
-const merge = (schema, form, ignore, options, readonly) => {
+export const merge = (schema, form, ignore, options, readonly) => {
   form = form || ['*']
   options = options || {}
 

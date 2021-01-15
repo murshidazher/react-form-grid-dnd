@@ -23,3 +23,8 @@ export const setColBreakpoints = (breakpoints) => ({
   type: GridActionTypes.SET_COL_BREAKPOINTS,
   payload: breakpoints,
 })
+
+export const setElementSelected = (elem) => ({
+  type: GridActionTypes.SET_ELEMENT_SELECTED,
+  payload: elem,
+})

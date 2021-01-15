@@ -8,3 +8,8 @@ export const selectGridBreakpoint = createSelector(
   [selectGridConfig],
   (grid) => grid.breakpoint,
 )
+
+export const selectGridElementSelected = createSelector(
+  [selectGridConfig],
+  (grid) => grid.elemSelected,
+)

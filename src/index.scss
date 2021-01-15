@@ -71,10 +71,16 @@ body {
   user-select: none;
 }
 
+.react-grid-item.border-selected {
+  border-width: 1px;
+  border-style: solid;
+  border-color: blue;
+}
+
 .react-grid-item {
 
   .react-resizable-handle {
-    display: none;
+    // display: none;
   }
 
   &:target {
