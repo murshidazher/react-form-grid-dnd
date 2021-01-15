@@ -6,11 +6,6 @@ import clsx from 'clsx'
 import Input from '../common/input.component'
 import {insertSpaces} from '../../utils/capitalize'
 
-import {connect} from 'react-redux'
-import {createStructuredSelector} from 'reselect'
-
-import {selectFormElementProperties} from '../../redux/form/form.selectors'
-
 // what form to generate
 // key should be unique because its mapped to the properties name
 const initialForm = [
@@ -57,13 +52,12 @@ const initialSchema = {
   required: ['name', 'email', 'comment'],
 }
 
-const SchemaViewer = ({fieldKey, getElement}) => {
-  const [form, setForm] = useState({})
+const SchemaViewer = ({form, fieldKey}) => {
+  // const [schema, setSchema] = useState(initialSchema)
   const [schemaElements, setSchemaElements] = useState([])
 
   useEffect(() => {
     if (fieldKey.length > 0) {
-      setForm(getElement(fieldKey))
       generateSchemaForm()
     }
   }, [form, fieldKey])
@@ -110,8 +104,4 @@ const SchemaViewer = ({fieldKey, getElement}) => {
   )
 }
 
-const mapStateToProps = (state, ownProps) => ({
-  getElement: (key) => selectFormElementProperties(key)(state),
-})
-
-export default connect(mapStateToProps)(SchemaViewer)
+export default SchemaViewer

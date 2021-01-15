@@ -17,7 +17,8 @@ import {
 } from '../../redux/grid/grid.selectors'
 
 const LayoutGridBuilder = ({config, layouts, form}) => {
-  const [fieldKey, setFieldKey] = useState('password')
+  const [formPart, setFormPart] = useState({})
+  const [fieldKey, setFieldKey] = useState('')
 
   const onLayoutChange = (layouts) => {
     // setLayout(layouts)
@@ -26,7 +27,7 @@ const LayoutGridBuilder = ({config, layouts, form}) => {
   const onFieldSelect = (form, key) => {
     console.log('fieldKey', key)
     setFieldKey(key)
-    // setForm(form)
+    setFormPart(form)
   }
 
   useEffect(() => {}, [layouts])
@@ -65,7 +66,7 @@ const LayoutGridBuilder = ({config, layouts, form}) => {
               />
             </div>
             <div className="bg-white shadow-md">
-              {/* <SchemaViewer form={form} fieldKey={fieldKey} /> */}
+              <SchemaViewer form={formPart} fieldKey={fieldKey} />
             </div>
           </div>
         </div>

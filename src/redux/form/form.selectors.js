@@ -43,21 +43,3 @@ export const selectFormLayoutLength = (breakpoint) =>
   createSelector([selectFormLayouts], (layouts) =>
     layouts ? layouts[breakpoint].length : 0,
   )
-
-export const selectFormElementProperties = (key) =>
-  createSelector([selectForm], (form) => {
-    console.log('selectFormElementProperties', form)
-    const merged = utils.merge(
-      form.schema,
-      form.form,
-      undefined,
-      undefined,
-      null,
-    )
-
-    return merged.map((formPart, index) => {
-      if (key == formPart.key) {
-        return formPart
-      }
-    })
-  })
