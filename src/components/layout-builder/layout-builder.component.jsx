@@ -7,11 +7,10 @@ import React, {
   useEffect,
 } from 'react'
 import PropTypes from 'prop-types'
-import _, {template} from 'lodash'
+import _ from 'lodash'
 import {Responsive, WidthProvider} from 'react-grid-layout'
 import produce from 'immer'
 const ResponsiveReactGridLayout = WidthProvider(Responsive)
-import {getKeyByValue} from '../../utils/object'
 import {formatISO} from '../../utils/date'
 import clsx from 'clsx'
 
@@ -70,9 +69,6 @@ const CustomGrid = memo(
     const [model, setModel] = useState(initialModel) //how it looks
 
     useEffect(() => {
-      // console.log('use Effect called')
-      // setValues()
-
       return () => {
         mounted.current = false
       }
@@ -251,9 +247,6 @@ const CustomGrid = memo(
       if (form) {
         const merged = utils.merge(schema, form, ignore, option, null)
 
-        console.log()
-        console.log('merged', merged)
-
         let mergedMapper = mapper
         if (mapper) {
           mergedMapper = merge(mapper, mapper)
@@ -305,6 +298,7 @@ const CustomGrid = memo(
             w: 6,
             h: 2,
             minH: 2,
+            maxH: 4,
             static: false,
             isBounded: true,
             isDroppable: true,
