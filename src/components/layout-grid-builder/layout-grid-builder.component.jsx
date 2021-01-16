@@ -24,7 +24,6 @@ const LayoutGridBuilder = ({config, layouts, form, schema, model}) => {
   const [fieldKey, setFieldKey] = useState('')
 
   const onLayoutChange = (layouts) => {
-    console.log('Layoutchanged', layouts)
     // setLayout(layouts)
   }
 
@@ -37,7 +36,6 @@ const LayoutGridBuilder = ({config, layouts, form, schema, model}) => {
   useEffect(() => {}, [layouts])
 
   const stringifyLayout = useMemo(() => {
-    console.log('stringifyLayout', layouts.length)
     if (!!layouts[config.breakpoint]) {
       return layouts[config.breakpoint].map((l) => {
         return (
@@ -51,7 +49,6 @@ const LayoutGridBuilder = ({config, layouts, form, schema, model}) => {
 
   return (
     <>
-      {console.log('asadasdas', config)}
       <div className="text-black font-sans ">
         <div className="layoutJSON">
           Displayed as <code>[x, y, w, h]</code>:

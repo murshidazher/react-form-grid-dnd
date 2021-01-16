@@ -31,6 +31,7 @@ import {
   selectGridElementSelected,
   selectGridLastDroppedElement,
 } from '../../redux/grid/grid.selectors'
+
 import {
   setBreakpoint,
   setCompactType,
@@ -47,7 +48,6 @@ const CustomGrid = memo(
     initialLayout,
     handleLayoutChange,
     handleFieldSelect,
-    droppedType,
     initialSchema,
     MapperTypes,
     initialForm,
@@ -62,7 +62,9 @@ const CustomGrid = memo(
     ...rest
   }) => {
     const [layouts, setLayouts] = useState(initialLayout) // {sm: initialLayout}
-    const [layoutLength, setLayoutLength] = useState(initialLayout.length)
+    const [layoutLength, setLayoutLength] = useState(
+      initialLayout[config.breakpoint].length,
+    )
     const mounted = useRef(true) // component mounted or not
     const [schema, setSchema] = useState(initialSchema) // how the layout and fields
     const [form, setForm] = useState(initialForm) //how it looks
@@ -82,14 +84,12 @@ const CustomGrid = memo(
 
     // remove an item
     const onRemoveItem = (i) => {
-      //console.log('removing', i)
-      //console.log('before', layouts)
       setLayouts(
         produce((prev) => {
           prev[config.breakpoint].splice(i, 1)
         }),
       )
-      //console.log('after', layouts)
+
       setLayoutLength(layoutLength - 1)
     }
 
@@ -113,18 +113,23 @@ const CustomGrid = memo(
 
     const onLayoutChange = (layout, item) => {
       handleLayoutChange(layout)
-      console.log('onLayoutChange', layout, item)
     }
 
     const onDrop = (layout, item, event) => {
-      // event.preventDefault()
       const key = item['i']
 
-      console.log('droppedType', droppedType)
+      console.log('droppedType', lastDropped)
+      console.log('layoutLength', layoutLength)
 
       console.log('item', item)
 
-      setLayouts(
+      console.log('layout', layout)
+
+      // var result = jsObjects.filter(obj => {
+      //   return obj.b === 6
+      // })
+
+      layout.setLayouts(
         produce((prev) => {
           prev[config.breakpoint] = layout
         }),
@@ -146,16 +151,10 @@ const CustomGrid = memo(
           }
         }),
       )
-
-      dispatch(setElementSelected(key))
     }
 
     // Assign default values and save it to the model
     const setDefault = (key, model, form, value) => {
-      // console.log('\t\tSchema Form - setDefault', key, model, form, value)
-
-      console.log('setDefault', key, model, form, value)
-
       const currentValue = utils.selectOrSet(key, model)
 
       // If current value is not setted and exist a default, apply the default over the model
@@ -164,7 +163,6 @@ const CustomGrid = memo(
     }
 
     const getLocalization = () => {
-      // console.log('\t\tSchema Form - getLocalization', localization)
       return {
         getLocalizedString:
           localization && localization.getLocalizedString
@@ -182,7 +180,6 @@ const CustomGrid = memo(
     }
 
     const builder = (form, model, index, mapper, onChange, builder) => {
-      // console.log('inside builder schemeForm')
       const Field = mapper[form.type]
       if (!Field) {
         return null
@@ -204,13 +201,9 @@ const CustomGrid = memo(
 
       const error = errors && key in errors ? errors[key] : null
 
-      // console.log('the key is ', key)
-
       const idx = utils.getIndexFromLayout(layouts[config.breakpoint], key)
       const grid = layouts[config.breakpoint][idx]
-      // console.log('localizaton', getLocalization())
-      console.log('assadsad', elemSelected)
-      console.log('assadsad match', elemSelected === grid.i)
+
       return (
         <div
           key={grid.i}
@@ -267,12 +260,8 @@ const CustomGrid = memo(
 
     return (
       <>
-        {/* {console.log('renddder')} */}
         <div>
-          <div className="div">
-            Dropped Type: {lastDropped}{' '}
-            {/* {getKeyByValue(MapperTypes, droppedType)} */}
-          </div>
+          <div className="div">Dropped Type: {lastDropped} </div>
           Current Breakpoint: {config.breakpoint} (
           {rest.cols[config.breakpoint]} columns)
         </div>
@@ -304,7 +293,6 @@ const CustomGrid = memo(
             isDroppable: true,
             static: false,
             resizeHandles: ['s', 'n'],
-            field: 'text',
           }}
           resizeHandles={['s', 'n']}>
           {children}

@@ -34,7 +34,7 @@ const StatefulDrop = (WrappedComponent) => {
         <p>Drop here : {elem}.</p>
 
         {!canDrop && elem && <p>Last dropped item: {elem}</p>}
-        <WrappedComponent {...rest} droppedType={elem} />
+        <WrappedComponent {...rest} />
       </div>
     )
   }

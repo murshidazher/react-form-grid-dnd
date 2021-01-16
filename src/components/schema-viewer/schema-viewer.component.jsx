@@ -64,8 +64,6 @@ const SchemaViewer = ({form, fieldKey}) => {
 
   const generateSchemaForm = () => {
     // get the schema based on the fieldKey value
-    console.log('this is from schemaviewer', form)
-
     const newForm = {
       title: form['title'],
       required: form['required'],
@@ -73,7 +71,6 @@ const SchemaViewer = ({form, fieldKey}) => {
 
     const result = _(newForm)
       .map((val, id) => {
-        console.log('isnide the generator', val, id)
         return (
           <Input
             key={`${fieldKey}_${id}`}
@@ -87,7 +84,6 @@ const SchemaViewer = ({form, fieldKey}) => {
       .value()
 
     setSchemaElements(result)
-    console.log('schema', result)
   }
 
   return (
