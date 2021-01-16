@@ -1,5 +1,4 @@
 import produce from 'immer'
-import {getIndexFromLayout} from '../../utils/formBuilder'
 
 export const setNewBreakpointLayout = (state, breakpoint, layout) => {
   console.log('inside the action', state, breakpoint, layout)
