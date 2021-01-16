@@ -1,5 +1,10 @@
 import FormActionTypes from './form.types'
-import {addItemToForm, removeItemFromForm} from './form.utils'
+import {
+  setNewBreakpointLayout,
+  addNewElementToForm,
+  addNewPropertyToSchema,
+  removeElementFromLayoutBreakpoint,
+} from './form.utils'
 
 const INITIAL_STATE = {
   selected: 'login.json',
@@ -59,23 +64,33 @@ const formReducer = (state = INITIAL_STATE, action) => {
         ...state,
         hidden: !state.hidden,
       }
-    case FormActionTypes.ADD_ITEM:
+    case FormActionTypes.SET_BREAKPOINT_LAYOUT:
+      return setNewBreakpointLayout(
+        state,
+        action.payload.breakpoint,
+        action.payload.layout
+      )
+    case FormActionTypes.ADD_FORM_ELEMENT:
       return {
         ...state,
-        cartItems: addItemToCart(state.cartItems, action.payload),
+        form: addNewElementToForm(state.form, action.payload),
       }
-    case FormActionTypes.REMOVE_ITEM:
+    case FormActionTypes.ADD_SCHEMA_PROPERTY:
       return {
         ...state,
-        cartItems: removeItemFromCart(state.cartItems, action.payload),
-      }
-    case FormActionTypes.CLEAR_ITEM_FROM_CART:
-      return {
-        ...state,
-        cartItems: state.cartItems.filter(
-          (cartItem) => cartItem.id !== action.payload.id,
+        schema: addNewPropertyToSchema(
+          state.schema,
+          action.payload.key,
+          action.payload.property
         ),
       }
+    case FormActionTypes.REMOVE_LAYOUT_ELEMENT:
+      return removeElementFromLayoutBreakpoint(
+        state,
+        action.payload.breakpoint,
+        action.payload.key,
+        action.payload.idx
+      )
     case FormActionTypes.CLEAR_CART:
       return {
         ...state,

@@ -19,7 +19,7 @@ import {
   selectGridBreakpoint,
 } from '../../redux/grid/grid.selectors'
 
-const LayoutGridBuilder = ({config, layouts, form, schema, model}) => {
+const LayoutGridBuilder = ({config, layouts, schema}) => {
   const [formPart, setFormPart] = useState({})
   const [fieldKey, setFieldKey] = useState('')
 
@@ -65,10 +65,6 @@ const LayoutGridBuilder = ({config, layouts, form, schema, model}) => {
                 <LayoutBuilder
                   handleLayoutChange={onLayoutChange}
                   handleFieldSelect={onFieldSelect}
-                  initialLayout={layouts}
-                  initialSchema={schema}
-                  initialForm={form}
-                  initialModel={model}
                 />
               )}
             </div>

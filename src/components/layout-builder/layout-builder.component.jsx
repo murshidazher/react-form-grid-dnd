@@ -14,6 +14,8 @@ const ResponsiveReactGridLayout = WidthProvider(Responsive)
 import {formatISO} from '../../utils/date'
 import clsx from 'clsx'
 
+import {v4 as uuidv4} from 'uuid'
+// uuidv4(); // ⇨ '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d'
 import merge from 'lodash/merge'
 import isNil from 'lodash/isNil'
 import utils from '../common/form/utils'
@@ -39,36 +41,50 @@ import {
 } from '../../redux/grid/grid.actions'
 
 import StatefulDrop from '../stateful-drop/stateful-drop.hoc'
+import {
+  selectFormLayouts,
+  selectFormSchema,
+  selectFormDefault,
+  selectFormModel,
+} from '../../redux/form/form.selectors'
+
+import {setLastDroppedElement} from '../../redux/grid/grid.actions'
+import {
+  addNewElementToForm,
+  addNewPropertyToSchema,
+  setBreakpointLayout,
+  setModel,
+  removeElementFromLayoutBreakpoint,
+} from '../../redux/form/form.actions'
 
 const CustomGrid = memo(
   ({
     config,
     dispatch,
     lastDropped,
-    initialLayout,
+    layouts,
+    setNewBreakpointLayout,
+    addNewPropertyToSchema,
+    addNewElementToForm,
+    removeElementFromLayoutBreakpoint,
+    setModel,
     handleLayoutChange,
     handleFieldSelect,
-    initialSchema,
+    schema,
     MapperTypes,
-    initialForm,
+    form,
     mapper,
     ignore,
     option,
-    initialModel,
+    model,
     localization,
     evalContext,
     errors,
     elemSelected,
     ...rest
   }) => {
-    const [layouts, setLayouts] = useState(initialLayout) // {sm: initialLayout}
-    const [layoutLength, setLayoutLength] = useState(
-      initialLayout[config.breakpoint].length,
-    )
+    const [layoutLength, setLayoutLength] = useState(2)
     const mounted = useRef(true) // component mounted or not
-    const [schema, setSchema] = useState(initialSchema) // how the layout and fields
-    const [form, setForm] = useState(initialForm) //how it looks
-    const [model, setModel] = useState(initialModel) //how it looks
 
     useEffect(() => {
       return () => {
@@ -77,18 +93,16 @@ const CustomGrid = memo(
     }, []) // Using an empty dependency array ensures this only runs
 
     const onModelChange = (key, val, type) => {
-      const newModel = model
-      utils.selectOrSet(key, newModel, val, type)
+      const newModel = produce(model, (drafModel) => {
+        return utils.selectOrSet(key, drafModel, val, type)
+      })
+
       setModel(newModel)
     }
 
     // remove an item
-    const onRemoveItem = (i) => {
-      setLayouts(
-        produce((prev) => {
-          prev[config.breakpoint].splice(i, 1)
-        }),
-      )
+    const onRemoveItem = (key, i) => {
+      removeElementFromLayoutBreakpoint(config.breakpoint, key, i)
 
       setLayoutLength(layoutLength - 1)
     }
@@ -116,46 +130,34 @@ const CustomGrid = memo(
     }
 
     const onDrop = (layout, item, event) => {
+      // const key = `${lastDropped}${layoutLength}`
+      // const temp = layout.map((obj) =>
+      //   obj.i === 'form_element0' ? {...obj, i: key} : obj
+      // )
+
       const key = item['i']
 
-      console.log('droppedType', lastDropped)
-      console.log('layoutLength', layoutLength)
+      addNewElementToForm(key)
 
-      console.log('item', item)
+      addNewPropertyToSchema(key, {
+        title: 'Name',
+        type: 'string',
+        default: 'Steve',
+      })
 
-      console.log('layout', layout)
+      setNewBreakpointLayout(config.breakpoint, layout)
 
-      // var result = jsObjects.filter(obj => {
-      //   return obj.b === 6
-      // })
-
-      layout.setLayouts(
-        produce((prev) => {
-          prev[config.breakpoint] = layout
-        }),
-      )
       setLayoutLength(layoutLength + 1)
-
-      setForm(
-        produce((prev) => {
-          prev.push(key)
-        }),
-      )
-
-      setSchema(
-        produce((prev) => {
-          prev['properties'][key] = {
-            title: 'Name',
-            type: 'string',
-            default: 'Steve',
-          }
-        }),
-      )
     }
 
     // Assign default values and save it to the model
     const setDefault = (key, model, form, value) => {
-      const currentValue = utils.selectOrSet(key, model)
+      console.log('setDefault', key, model)
+      // const currentValue = utils.selectOrSet(key, model)
+
+      const currentValue = produce(model, (drafModel) => {
+        return utils.selectOrSet(key, drafModel)
+      })
 
       // If current value is not setted and exist a default, apply the default over the model
       if (isNil(currentValue) && !isNil(value))
@@ -179,7 +181,13 @@ const CustomGrid = memo(
       }
     }
 
+    const onGridElementSelect = (formPart, key) => {
+      dispatch(setElementSelected(key))
+      onFieldSelect(formPart, key)
+    }
+
     const builder = (form, model, index, mapper, onChange, builder) => {
+      console.log('builder', form, model, layouts)
       const Field = mapper[form.type]
       if (!Field) {
         return null
@@ -202,19 +210,21 @@ const CustomGrid = memo(
       const error = errors && key in errors ? errors[key] : null
 
       const idx = utils.getIndexFromLayout(layouts[config.breakpoint], key)
+      console.log('getIndexFromLayout', layouts, key, idx)
+
       const grid = layouts[config.breakpoint][idx]
 
       return (
         <div
           key={grid.i}
+          // key={idx}
           className={clsx('form-block', {
             static: grid.static,
             'border-selected': elemSelected === grid.i,
           })}
           data-grid={grid}
           onClick={() => {
-            dispatch(setElementSelected(key))
-            onFieldSelect(form, key)
+            onGridElementSelect(form, key)
           }}>
           <Field
             model={model}
@@ -229,7 +239,9 @@ const CustomGrid = memo(
             showErrors={config.showErrors}
             disabled
           />
-          <span className="remove btn-remove" onClick={() => onRemoveItem(key)}>
+          <span
+            className="remove btn-remove"
+            onClick={() => onRemoveItem(key, idx)}>
             x
           </span>
         </div>
@@ -245,6 +257,8 @@ const CustomGrid = memo(
           mergedMapper = merge(mapper, mapper)
         }
 
+        console.log('inside children', schema, form, ignore, option, null)
+
         return merged.map((formPart, index) => {
           return builder(
             formPart,
@@ -252,11 +266,11 @@ const CustomGrid = memo(
             index,
             mergedMapper,
             onModelChange,
-            builder,
+            builder
           )
         })
       }
-    }, [schema, form, layouts, elemSelected])
+    }, [layouts, elemSelected])
 
     return (
       <>
@@ -283,7 +297,7 @@ const CustomGrid = memo(
           resizeHandles={['se', 'ne']}
           onDrop={(layout, item, e) => onDrop(layout, item, e)}
           droppingItem={{
-            i: 'form_element0',
+            i: `${lastDropped}${layoutLength}`,
             w: 6,
             h: 2,
             minH: 2,
@@ -299,7 +313,7 @@ const CustomGrid = memo(
         </ResponsiveReactGridLayout>
       </>
     )
-  },
+  }
 )
 
 const LayoutBuilder = StatefulDrop(CustomGrid)
@@ -318,12 +332,28 @@ LayoutBuilder.defaultProps = {
   showErrors: false,
 }
 
+const mapDispatchToProps = (dispatch) => ({
+  setNewBreakpointLayout: (breakpoint, layout) =>
+    dispatch(setBreakpointLayout(breakpoint, layout)),
+  addNewPropertyToSchema: (key, property) =>
+    dispatch(addNewPropertyToSchema(key, property)),
+  addNewElementToForm: (key) => dispatch(addNewElementToForm(key)),
+  setModel: () => dispatch(setModel()),
+  removeElementFromLayoutBreakpoint: (breakpoint, key, idx) =>
+    dispatch(removeElementFromLayoutBreakpoint(breakpoint, key, idx)),
+  dispatch: (cb) => dispatch(cb),
+})
+
 const mapStateToProps = createStructuredSelector({
   mapper: selectMapperElements,
   MapperTypes: selectMapperTypes,
   config: selectGridConfig,
   elemSelected: selectGridElementSelected,
   lastDropped: selectGridLastDroppedElement,
+  layouts: selectFormLayouts,
+  schema: selectFormSchema,
+  model: selectFormModel,
+  form: selectFormDefault,
 })
 
-export default connect(mapStateToProps)(LayoutBuilder)
+export default connect(mapStateToProps, mapDispatchToProps)(LayoutBuilder)

@@ -377,7 +377,7 @@ const getDefaults = (schema, ignore, globalOptions) => {
     }
   } else {
     throw new Error(
-      'Not implemented. Only type "object" allowed at root level of schema.',
+      'Not implemented. Only type "object" allowed at root level of schema.'
     )
   }
   return {form, lookup}
@@ -542,7 +542,7 @@ export const merge = (schema, form, ignore, options, readonly) => {
       }
 
       return obj
-    }),
+    })
   )
 }
 
@@ -666,7 +666,7 @@ const validate = (form, value, getLocalizedString) => {
   return tv4Result
 }
 
-const getIndexFromLayout = (layout, key) => {
+export const getIndexFromLayout = (layout, key) => {
   return layout.findIndex((x) => x.i === key)
 }
 

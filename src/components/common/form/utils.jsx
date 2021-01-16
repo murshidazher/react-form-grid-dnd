@@ -29,7 +29,7 @@ const stripNullType = (type) => {
 const enumToTitleMap = (enm) => {
   const titleMap = [] // canonical titleMap format is a list.
   enm.forEach((name) => {
-    titleMap.push({ name, value: name })
+    titleMap.push({name, value: name})
   })
   return titleMap
 }
@@ -43,7 +43,7 @@ const canonicalTitleMap = (titleMap, originalEnum) => {
   const enumValues =
     Object.keys(titleMap).length === 0 ? originalEnum : titleMap
   originalEnum.forEach((value, idx) => {
-    canonical.push({ name: enumValues[idx], value })
+    canonical.push({name: enumValues[idx], value})
   })
   return canonical
 }
@@ -380,7 +380,7 @@ const getDefaults = (schema, ignore, globalOptions) => {
       'Not implemented. Only type "object" allowed at root level of schema.'
     )
   }
-  return { form, lookup }
+  return {form, lookup}
 }
 
 const postProcessFn = (form) => form
@@ -478,12 +478,12 @@ const merge = (schema, form, ignore, options, readonly) => {
 
   // ok let's merge!
   // We look at the supplied form and extend it with schema standards
-  const { lookup } = stdForm
+  const {lookup} = stdForm
   return postProcessFn(
     form.map((obj) => {
       // handle the shortcut with just a name
       if (typeof obj === 'string') {
-        obj = { key: obj }
+        obj = {key: obj}
       }
       if (obj && obj.key) {
         if (typeof obj.key === 'string') {
@@ -613,11 +613,11 @@ const validateBySchema = (schema, value) => tv4.validateResult(value, schema)
 
 const validate = (form, value, getLocalizedString) => {
   if (!form) {
-    return { valid: true }
+    return {valid: true}
   }
-  const { schema } = form
+  const {schema} = form
   if (!schema) {
-    return { valid: true }
+    return {valid: true}
   }
   // Input of type text and textareas will give us a viewValue of ''
   // when empty, this is a valid value in a schema and does not count as something
@@ -640,7 +640,7 @@ const validate = (form, value, getLocalizedString) => {
   // Version 4 of JSON Schema has the required property not on the
   // property itself but on the wrapping object. Since we like to test
   // only this property we wrap it in a fake object.
-  const wrap = { type: 'object', properties: {} }
+  const wrap = {type: 'object', properties: {}}
   const propName = form.key[form.key.length - 1]
   wrap.properties[propName] = schema
 

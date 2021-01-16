@@ -1,47 +1,53 @@
-export const addItemToForm = (formItems, formItemToAdd) => {
-  const existingFormItem = formItems.find(
-    (formItem) => formItem.id === formItemToAdd.id,
-  )
+import produce from 'immer'
+import {getIndexFromLayout} from '../../utils/formBuilder'
 
-  if (existingFormItem) {
-    return formItems.map((formItem) =>
-      formItem.id === formItemToAdd.id
-        ? {...formItem, quantity: formItem.quantity + 1}
-        : formItem,
-    )
-  }
-
-  return [...formItems, {...formItemToAdd, quantity: 1}]
+export const setNewBreakpointLayout = (state, breakpoint, layout) => {
+  console.log('inside the action', state, breakpoint, layout)
+  return produce(state, (drafState) => {
+    drafState['layouts'][breakpoint] = layout
+  })
 }
 
-export const removeItemFromForm = (formItems, formItemToRemove) => {
-  const existingFormItem = formItems.find(
-    (formItem) => formItem.id === formItemToRemove.id,
-  )
+export const removeElementFromLayoutBreakpoint = (
+  state,
+  breakpoint,
+  key,
+  idx
+) => {
+  const x = produce(state, (drafState) => {
+    drafState['layouts'][breakpoint].splice(idx, 1) // remove from layout breakpoint schema
+    delete drafState['schema']['properties'][key] // remove from schema properties
+    drafState['schema']['required'].splice(
+      drafState['schema']['required'].indexOf(key),
+      1
+    ) // remove schema required
 
-  if (existingFormItem.quantity === 1) {
-    return formItems.filter((formItem) => formItem.id !== formItemToRemove.id)
-  }
+    // remove from form ui
+    if (!key.includes('text')) {
+      const i = drafState['form'].findIndex((x) => x.key[0] === key)
+      drafState['form'].splice(i, 1)
+    } else {
+      drafState['form'].splice(drafState['form'].indexOf(key), 1)
+    }
+  })
 
-  return formItems.map((formItem) =>
-    formItem.id === formItemToRemove.id
-      ? {...formItem, quantity: formItem.quantity - 1}
-      : formItem,
+  console.log('removeElementFromLayoutBreakpoint - form', x['form'])
+  console.log(
+    'removeElementFromLayoutBreakpoint - layouts',
+    x['layouts'][breakpoint]
   )
+  console.log('removeElementFromLayoutBreakpoint - schema', x['schema'])
+  return x
 }
 
-export const getSchema = (formItems, formItemToAdd) => {
-  const existingFormItem = formItems.find(
-    (formItem) => formItem.id === formItemToAdd.id,
-  )
+export const addNewElementToForm = (form, key) => {
+  return produce(form, (draftForm) => {
+    draftForm.push(key)
+  })
+}
 
-  if (existingFormItem) {
-    return formItems.map((formItem) =>
-      formItem.id === formItemToAdd.id
-        ? {...formItem, quantity: formItem.quantity + 1}
-        : formItem,
-    )
-  }
-
-  return [...formItems, {...formItemToAdd, quantity: 1}]
+export const addNewPropertyToSchema = (schema, key, property) => {
+  return produce(schema, (draftSchema) => {
+    draftSchema['properties'][key] = property
+  })
 }

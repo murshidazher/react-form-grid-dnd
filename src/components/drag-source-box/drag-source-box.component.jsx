@@ -42,13 +42,11 @@ export const DragSourceBox = ({
       opacity: isDragging ? 0.4 : 1,
       cursor: forbidDrag ? 'default' : 'move',
     }),
-    [isDragging, forbidDrag],
+    [isDragging, forbidDrag]
   )
 
   return (
     <div
-      key="5"
-      data-grid={{w: 2, h: 3, x: 8, y: 0, minW: 2, minH: 3}}
       ref={drag}
       style={containerStyle}
       className={('droppable-element', className)}

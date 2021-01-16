@@ -27,6 +27,36 @@ export const setLayouts = (layouts) => ({
   payload: layouts,
 })
 
+export const setBreakpointLayout = (breakpoint, layout) => ({
+  type: FormActionTypes.SET_BREAKPOINT_LAYOUT,
+  payload: {
+    breakpoint: breakpoint,
+    layout: layout,
+  },
+})
+
+export const removeElementFromLayoutBreakpoint = (breakpoint, key, idx) => ({
+  type: FormActionTypes.REMOVE_LAYOUT_ELEMENT,
+  payload: {
+    breakpoint: breakpoint,
+    key: key,
+    idx: idx,
+  },
+})
+
+export const addNewElementToForm = (key) => ({
+  type: FormActionTypes.ADD_FORM_ELEMENT,
+  payload: key,
+})
+
+export const addNewPropertyToSchema = (key, property) => ({
+  type: FormActionTypes.ADD_SCHEMA_PROPERTY,
+  payload: {
+    key: key,
+    property: property,
+  },
+})
+
 export const fetchFormStart = () => ({
   type: FormActionTypes.FETCH_FORM_START,
 })
