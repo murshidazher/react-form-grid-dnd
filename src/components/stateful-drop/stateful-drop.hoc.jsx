@@ -5,11 +5,13 @@ import {connect} from 'react-redux'
 import {createStructuredSelector} from 'reselect'
 
 import {selectMapperTypes} from '../../redux/mapper/mapper.selectors'
+import {selectGridLastDroppedElement} from '../../redux/grid/grid.selectors'
+
+import {setLastDroppedElement} from '../../redux/grid/grid.actions'
 
 const StatefulDrop = (WrappedComponent) => {
-  const HOC = ({MapperTypes, ...rest}) => {
-    const [lastDroppedColor, setLastDroppedColor] = useState(null)
-    const onDrop = useCallback((color) => setLastDroppedColor(color), [])
+  const HOC = ({MapperTypes, elem, setLastDroppedElement, ...rest}) => {
+    const onDrop = useCallback((color) => setLastDroppedElement(color), [])
 
     const [{isOver, draggingColor, canDrop}, drop] = useDrop({
       accept: [MapperTypes.Textbox, MapperTypes.Markdown],
@@ -26,21 +28,24 @@ const StatefulDrop = (WrappedComponent) => {
 
     return (
       <div ref={drop}>
-        <p>Drop here : {lastDroppedColor}.</p>
+        <p>Drop here : {elem}.</p>
 
-        {!canDrop && lastDroppedColor && (
-          <p>Last dropped item: {lastDroppedColor}</p>
-        )}
-        <WrappedComponent {...rest} droppedType={lastDroppedColor} />
+        {!canDrop && elem && <p>Last dropped item: {elem}</p>}
+        <WrappedComponent {...rest} droppedType={elem} />
       </div>
     )
   }
 
-  const mapStateToProps = createStructuredSelector({
-    MapperTypes: selectMapperTypes,
+  const mapDispatchToProps = (dispatch) => ({
+    setLastDroppedElement: (el) => dispatch(setLastDroppedElement(el)),
   })
 
-  return connect(mapStateToProps)(HOC)
+  const mapStateToProps = createStructuredSelector({
+    MapperTypes: selectMapperTypes,
+    elem: selectGridLastDroppedElement,
+  })
+
+  return connect(mapStateToProps, mapDispatchToProps)(HOC)
 }
 
 export default StatefulDrop

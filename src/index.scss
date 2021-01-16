@@ -112,6 +112,8 @@ body {
 
 .form-block {
   padding: 8px 14px;
+  display: flex;
+  align-items: center;
 }
 
 .react-grid-item:not(.react-grid-placeholder) {

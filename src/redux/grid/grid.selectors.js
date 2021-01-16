@@ -13,3 +13,8 @@ export const selectGridElementSelected = createSelector(
   [selectGridConfig],
   (grid) => grid.elemSelected,
 )
+
+export const selectGridLastDroppedElement = createSelector(
+  [selectGridConfig],
+  (grid) => grid.lastDroppedElement,
+)

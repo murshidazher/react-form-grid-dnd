@@ -5,6 +5,7 @@ const INITIAL_STATE = {
   breakpoint: 'sm',
   compactType: 'vertical',
   elemSelected: '',
+  lastDroppedElement: '',
   cols: {
     lg: 12,
     md: 10,
@@ -47,6 +48,11 @@ const gridReducer = (state = INITIAL_STATE, action) => {
       return {
         ...state,
         elemSelected: action.payload,
+      }
+    case GridActionTypes.SET_LAST_DROPPED_ELEMENT:
+      return {
+        ...state,
+        lastDroppedElement: action.payload,
       }
     default:
       return state

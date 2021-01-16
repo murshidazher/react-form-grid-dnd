@@ -30,6 +30,7 @@ import {
 import {
   selectGridConfig,
   selectGridElementSelected,
+  selectGridLastDroppedElement,
 } from '../../redux/grid/grid.selectors'
 import {
   setBreakpoint,
@@ -43,6 +44,7 @@ const CustomGrid = memo(
   ({
     config,
     dispatch,
+    lastDropped,
     initialLayout,
     handleLayoutChange,
     handleFieldSelect,
@@ -275,7 +277,7 @@ const CustomGrid = memo(
         {/* {console.log('renddder')} */}
         <div>
           <div className="div">
-            Dropped Type: {droppedType}{' '}
+            Dropped Type: {lastDropped}{' '}
             {/* {getKeyByValue(MapperTypes, droppedType)} */}
           </div>
           Current Breakpoint: {config.breakpoint} (
@@ -339,6 +341,7 @@ const mapStateToProps = createStructuredSelector({
   MapperTypes: selectMapperTypes,
   config: selectGridConfig,
   elemSelected: selectGridElementSelected,
+  lastDropped: selectGridLastDroppedElement,
 })
 
 export default connect(mapStateToProps)(LayoutBuilder)

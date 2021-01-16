@@ -28,3 +28,8 @@ export const setElementSelected = (elem) => ({
   type: GridActionTypes.SET_ELEMENT_SELECTED,
   payload: elem,
 })
+
+export const setLastDroppedElement = (elem) => ({
+  type: GridActionTypes.SET_LAST_DROPPED_ELEMENT,
+  payload: elem,
+})
