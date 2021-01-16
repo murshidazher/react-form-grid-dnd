@@ -13,7 +13,7 @@ const StatefulDrop = (WrappedComponent) => {
   const HOC = ({MapperTypes, elem, setLastDroppedElement, ...rest}) => {
     const onDrop = useCallback((color) => setLastDroppedElement(color), [])
 
-    const [{isOver, draggingColor, canDrop}, drop] = useDrop({
+    const [{isOver, draggingElement, canDrop}, drop] = useDrop({
       accept: [MapperTypes.Textbox, MapperTypes.Markdown],
       drop(item) {
         onDrop(item.type)
@@ -22,8 +22,11 @@ const StatefulDrop = (WrappedComponent) => {
       collect: (monitor) => ({
         isOver: monitor.isOver(),
         canDrop: monitor.canDrop(),
-        draggingColor: monitor.getItemType(),
+        draggingElement: monitor.getItemType(),
       }),
+      hover: (item) => {
+        onDrop(item.type)
+      },
     })
 
     return (
